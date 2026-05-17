@@ -38,6 +38,8 @@
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
 <link href="favicon.png" rel="icon" type="image/png"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
 </head>
 <style>
 :root{
@@ -77,9 +79,15 @@
       display:flex;align-items:center;gap:18px;
     }
     .topbar-logo{
-      display:flex;align-items:center;gap:14px;text-decoration:none;flex-shrink:0;
+      display:flex;align-items:center;gap:18px;text-decoration:none;flex-shrink:0;
     }
-    .topbar-logo img{height:72px;width:auto;max-width:min(360px,42vw);object-fit:contain;display:block}
+    .topbar-logo img{height:78px;width:auto;max-width:340px;object-fit:contain;display:block}
+    .topbar-brand-line{
+      font-size:15px;font-weight:800;color:#1B2E5E;
+      letter-spacing:.01em;white-space:nowrap;
+      padding-left:18px;border-left:1.5px solid #CBD5E1;
+    }
+    @media(max-width:800px){.topbar-brand-line{display:none}}
     .topbar-tagline{
       font-size:13px;font-weight:700;
       color:#1B2E5E;white-space:nowrap;letter-spacing:.01em;
@@ -405,7 +413,7 @@
     .tpl-card:hover{border-color:#2196D388;transform:translateY(-5px);box-shadow:0 18px 45px rgba(33,150,211,.14)}
     .tpl-card:hover .tpl-hover-zoom{opacity:1}
     .tpl-card.selected{border-color:#2563A6;box-shadow:0 0 0 4px #2563A622,0 18px 45px rgba(244,123,32,.16)}
-    .tpl-card.filtenavy-out{display:none}
+    .tpl-card.filtered-out{display:none}
     .tpl-selected-badge{
       display:none;position:absolute;top:10px;right:10px;z-index:5;
       background:#2563A6;color:#fff;font-size:11px;font-weight:800;
@@ -980,7 +988,7 @@
     }
     @media(max-width:600px){
       .tpl-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
-      .topbar-logo img{height:44px;max-width:60vw}
+      .topbar-logo img{height:58px;max-width:240px}
       .topbar-tagline{display:none}
 
       /* Step bar pills: hide label text, keep numbenavy circle only */
@@ -1023,7 +1031,7 @@
 
   
     /* ── TEMPLATE FILTER FINAL HARD FIX CSS ── */
-    .tpl-card.filtenavy-out{display:none!important}
+    .tpl-card.filtered-out{display:none!important}
     .tpl-filter-panel{background:#f8fbff;border:1.5px solid var(--line);padding:16px;margin:0 0 20px 0;box-shadow:0 4px 18px rgba(27,46,94,.04)}
     .tpl-filter-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
     .tpl-search-wrap{flex:1;min-width:240px;position:relative;display:flex;align-items:center}
@@ -1043,7 +1051,7 @@
 
   
     /* ── FINAL WORKING TEMPLATE FILTER CSS ── */
-    .tpl-card.filtenavy-out{display:none!important}
+    .tpl-card.filtered-out{display:none!important}
     .tpl-filter-panel{
       background:#f8fbff;
       border:1.5px solid var(--line);
@@ -1220,7 +1228,7 @@ body{background:linear-gradient(160deg,#F8FAFC 0%,#EAF3FB 100%);color:#111827;}
 .lang-btn,.btn,.landing-primary-btn,.tpl-filter-btn,.cfbtn-all,input,select,textarea,.section-card,.acc-card,.tpl-card,.landing-card,.how-card,.why-card,.audience-card,.mini-template,.pay-option,.qr-panel{}
 .lang-btn.active,.btn.primary,.landing-primary-btn,.step-pill.active .n,.step-pill.done .n{background:#0B1F3A!important;border-color:#0B1F3A!important;color:#fff!important;}
 .btn.accent,.btn.success{background:#2563A6!important;color:#fff!important;}
-.topbar-logo img{display:none!important;}
+.topbar-logo img{display:block;}
 .landing-kicker{background:#EAF3FB!important;color:#0B1F3A!important;border-color:#CBD5E1!important;letter-spacing:.08em;text-transform:uppercase;}
 .landing-hero{background:linear-gradient(135deg,#FFFFFF 0%,#EAF3FB 100%)!important;border-left:8px solid #0B1F3A;}
 .landing-hero h1,.landing-section-head h2,.acc-title,.tpl-name,.download-wrap h2{color:#0B1F3A!important;}
@@ -1317,7 +1325,7 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
 <!-- ── TOPBAR ── -->
 <header class="topbar">
 <div class="topbar-inner">
-<a aria-label="GlobalCV.pro Home" class="topbar-logo" href="#" onclick="goTo(1);return false;"><span class="gc-logo-word">GlobalCV.pro</span></a>
+<a aria-label="GlobalCV.pro Home" class="topbar-logo" href="#" onclick="goTo(1);return false;"><img src="main-logo.svg" alt="GlobalCV.pro logo"><span class="topbar-brand-line">Build a professional resume in minutes.</span></a>
 <div class="topbar-spacer"></div>
 </div>
 </header>
@@ -1834,14 +1842,11 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
 </div>
 <div class="tpl-filter-label" id="tplColorLabel">Color</div>
 <div class="color-filter-row" id="tplColorFilters">
-<button class="cfbtn-all active" data-template-color="all" type="button">All Colors</button>
+<button class="cfbtn-all active" data-template-color="all" type="button">All</button>
+<button class="cfbtn" data-template-color="navy" style="background:#1B2E5E;border-color:#1B2E5E" title="Navy" type="button"></button>
 <button class="cfbtn" data-template-color="blue" style="background:#2196D3;border-color:#2196D3" title="Blue" type="button"></button>
-<button class="cfbtn" data-template-color="grey" style="background:#94a3b8;border-color:#cbd5e1" title="Grey" type="button"></button>
-<button class="cfbtn" data-template-color="navy" style="background:#2563A6;border-color:#2563A6" title="Navy" type="button"></button>
-<button class="cfbtn" data-template-color="blue" style="background:#2563A6;border-color:#2563A6" title="Blue" type="button"></button>
-<button class="cfbtn" data-template-color="navy" style="background:#2F80C9;border-color:#2F80C9" title="Navy" type="button"></button>
-<button class="cfbtn" data-template-color="blue" style="background:#2563A6;border-color:#2563A6" title="Blue" type="button"></button>
 <button class="cfbtn" data-template-color="dark" style="background:#111827;border-color:#111827" title="Dark" type="button"></button>
+<button class="cfbtn" data-template-color="grey" style="background:#64748B;border-color:#64748B" title="Slate" type="button"></button>
 </div>
 <div class="tpl-count-bar">
 <div class="tpl-count-text" id="tplVisibleCount"></div>
@@ -1894,7 +1899,7 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
                 Demo payment mode: Real bank API is not connected yet. After payment, click the button below to continue. Payment can be verified manually later.
               </div>
 <div class="demo-payment-actions">
-<button class="demo-paid-btn" onclick="demoConfirmPayment()" type="button">I Have Paid - Continue</button>
+<a href="#" class="lemonsqueezy-button demo-paid-btn" id="pay-download-btn" style="text-align:center; text-decoration:none; display:block;">Download Premium CV - $1.00</a>
 </div>
 <div class="demo-payment-success" id="demoPaymentSuccess">
                 Payment confirmed. You can now download your CV.
@@ -1942,7 +1947,7 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
 </div>
 </div>
 <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-<button class="btn success lg" id="dl-btn" onclick="window.print()">Download Resume (PDF)</button>
+<button class="btn success lg" id="dl-btn" onclick="downloadPDF()">Download Resume (PDF)</button>
 <button class="btn light lg" id="dl-new" onclick="goTo(1)">+ Create Another CV</button>
 <button class="btn ghost lg" id="dl-home" onclick="goTo(1)">Back to Home</button>
 </div>
@@ -3872,14 +3877,11 @@ function updateTemplateFilterLanguage(){
   });
 
   const colorText={
-    all:['All Colors',''],
-    blue:['Blue',''],
-    grey:['Grey',''],
+    all:['All',''],
     navy:['Navy',''],
     blue:['Blue',''],
-    navy:['Navy',''],
-    blue:['Blue',''],
-    dark:['Dark','']
+    dark:['Dark',''],
+    grey:['Slate','']
   };
   document.querySelectorAll('[data-template-color]').forEach(btn=>{
     const key=btn.dataset.templateColor;
@@ -3897,7 +3899,7 @@ function applyTemplateFilters(){
   let shown=0;
   cards.forEach(card=>{
     const visible=templateCardMatches(card);
-    card.classList.toggle('filtenavy-out',!visible);
+    card.classList.toggle('filtered-out',!visible);
     card.style.display=visible?'':'none';
     if(visible)shown++;
   });
@@ -4376,32 +4378,85 @@ function addReference(){
     <div class="field"><label>Email</label><input type="email" class="ref-email" placeholder="e.g. michael.anderson@acmeglobal.com"/></div>
     </div>`);
 }
-// --- PAYMENT GATEWAY INTEGRATION ---
-// GLOBALCVPRO_BACKEND_DOMAIN
-const BACKEND_URL = 'https://globalcv-backend.onrender.com'; // ALREADY UPDATED TO RENDER!
+// ── PAYMENT CONFIG ────────────────────────────────────────────────────────────
+// Set DEV_PAYMENT_BYPASS to false before production launch.
+const GLOBALCV_CONFIG = {
+  // STEP 1: After Render is ready, paste your Render backend URL here.
+  // Example: "https://globalcv-backend.onrender.com"
+  BACKEND_URL: "",
+
+  // STEP 2: After Lemon Squeezy approval, paste your checkout URL here.
+  // Example: "https://globalcv.lemonsqueezy.com/buy/xxxxxxxx"
+  LEMON_CHECKOUT_URL: "",
+
+  // STEP 3: Set this as your return URL in Lemon Squeezy dashboard → Store → Checkout Settings.
+  // Example: "https://globalcv.pro/?payment=success"
+  LEMON_RETURN_URL: "https://globalcv.pro/?payment=success",
+
+  PRICE_LABEL: "$1",
+
+  // Set DEV_PAYMENT_BYPASS to false before production launch.
+  DEV_PAYMENT_BYPASS: true
+};
+
+// Client reference ID — generated once per browser, persisted in localStorage.
+function getClientReferenceId() {
+  let ref = localStorage.getItem('globalcv_client_ref');
+  if (!ref) {
+    ref = 'gcv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
+    localStorage.setItem('globalcv_client_ref', ref);
+  }
+  return ref;
+}
 
 let paymentInterval;
 let currentTransactionId = null;
 
+// ── CHECKOUT HANDLER ──────────────────────────────────────────────────────────
 async function handleCheckout() {
   const d = buildData();
-  
-  if(!d.name || !d.title) {
+
+  if (!d.name || !d.title) {
     alert("Please fill in your name and job title before downloading.");
     return;
   }
 
-  // Show UI Modal
-document.getElementById('payment-loader-ui').style.display = 'block';
+  // DEV BYPASS — Remove this block when DEV_PAYMENT_BYPASS is set to false.
+  if (GLOBALCV_CONFIG.DEV_PAYMENT_BYPASS) {
+    paymentUnlocked = true;
+    goTo(4);
+    return;
+  }
+
+  // ── LEMON SQUEEZY FLOW ────────────────────────────────────────────────────
+  // Activated when DEV_PAYMENT_BYPASS is false and LEMON_CHECKOUT_URL is set.
+  // PASTE your Lemon Squeezy checkout URL into GLOBALCV_CONFIG.LEMON_CHECKOUT_URL above.
+  if (GLOBALCV_CONFIG.LEMON_CHECKOUT_URL) {
+    const clientReferenceId = getClientReferenceId();
+    const checkoutUrl =
+      GLOBALCV_CONFIG.LEMON_CHECKOUT_URL +
+      '?checkout[custom][client_reference_id]=' + encodeURIComponent(clientReferenceId);
+    window.location.href = checkoutUrl;
+    return;
+  }
+
+  // ── LEGACY BACKEND FLOW (fallback if LEMON_CHECKOUT_URL is not set) ────────
+  if (!GLOBALCV_CONFIG.BACKEND_URL) {
+    console.info("Backend URL not configured yet.");
+    alert("Payment is not available yet. Please check back soon.");
+    return;
+  }
+
+  document.getElementById('payment-loader-ui').style.display = 'block';
 
   try {
-    const response = await fetch(`${BACKEND_URL}/api/checkout`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ amount: 1.00, customerName: d.name })
-});
+    const response = await fetch(`${GLOBALCV_CONFIG.BACKEND_URL}/api/checkout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: 1.00, customerName: d.name })
+    });
     const data = await response.json();
-    
+
     if (data.success) {
       currentTransactionId = data.transactionId;
       document.getElementById('qrImage').src = data.qrUrl;
@@ -4420,47 +4475,82 @@ document.getElementById('payment-loader-ui').style.display = 'block';
 function startPolling() {
   paymentInterval = setInterval(async () => {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/check-status?id=${currentTransactionId}`);
+      const res = await fetch(`${GLOBALCV_CONFIG.BACKEND_URL}/api/check-status?id=${currentTransactionId}`);
       const data = await res.json();
-      
+
       if (data.status === 'paid') {
-         clearInterval(paymentInterval);
-         handlePaymentSuccess();
+        clearInterval(paymentInterval);
+        handlePaymentSuccess();
       }
-    } catch(err) { console.error(err); }
+    } catch (err) { console.error(err); }
   }, 3000);
 }
 
-
-function demoConfirmPayment(){
+function demoConfirmPayment() {
   paymentUnlocked = true;
 
   const success = document.getElementById('demoPaymentSuccess');
-  if(success){
+  if (success) {
     success.classList.add('visible');
     success.textContent = 'Payment confirmed. You can now download your CV.';
   }
 
   const paidBtn = document.querySelector('.demo-paid-btn');
-  if(paidBtn){
+  if (paidBtn) {
     paidBtn.disabled = true;
     paidBtn.textContent = 'Payment Confirmed ✓';
   }
 
-  setTimeout(function(){
-    goTo(4);
-  }, 700);
+  setTimeout(function () { goTo(4); }, 700);
 }
 
-function handlePaymentSuccess(){
+function handlePaymentSuccess() {
   paymentUnlocked = true;
   goTo(4);
 }
 
 function closePaymentModal() {
   document.getElementById('payment-loader-ui').style.display = 'none';
-  if(paymentInterval) clearInterval(paymentInterval);
+  if (paymentInterval) clearInterval(paymentInterval);
 }
+
+// ── RETURN-FROM-PAYMENT CHECK ─────────────────────────────────────────────────
+// Runs on page load. Detects if user returned from Lemon Squeezy checkout.
+(function checkPaymentReturn() {
+  const params = new URLSearchParams(window.location.search);
+  const isSuccess =
+    params.get('payment') === 'success' ||
+    params.get('paid') === 'true' ||
+    params.get('checkout') === 'success';
+
+  if (!isSuccess) return;
+
+  if (!GLOBALCV_CONFIG.BACKEND_URL) {
+    console.info("Backend URL not configured yet. Skipping payment verification.");
+    // TODO: When BACKEND_URL is ready, uncomment the block below.
+    // const clientReferenceId = getClientReferenceId();
+    // fetch(`${GLOBALCV_CONFIG.BACKEND_URL}/payment-status/${encodeURIComponent(clientReferenceId)}`)
+    //   .then(r => r.json())
+    //   .then(data => { if (data.paid) handlePaymentSuccess(); })
+    //   .catch(err => console.error("Payment status check failed:", err));
+    return;
+  }
+
+  // PASTE Render backend URL into GLOBALCV_CONFIG.BACKEND_URL above to enable this.
+  const clientReferenceId = getClientReferenceId();
+  fetch(`${GLOBALCV_CONFIG.BACKEND_URL}/payment-status/${encodeURIComponent(clientReferenceId)}`)
+    .then(r => r.json())
+    .then(data => { if (data.paid) handlePaymentSuccess(); })
+    .catch(err => console.error("Payment status check failed:", err));
+})();
+/* ── PDF EXPORT ── */
+// Exports only #printArea via browser print.
+// Elements marked data-export-hide="true" are hidden by print CSS.
+// Website logo, navigation, buttons, payment cards, and badges are excluded.
+function downloadPDF() {
+  window.print();
+}
+
 /* ── INIT ── */
 renderTemplates();
 selectTpl(0);
@@ -5250,7 +5340,7 @@ window.addEventListener('beforeunload',function(e){
 <ul style="list-style: none; padding: 0; margin: 0;">
 <li style="margin-bottom: 8px;"><a href="terms.html" style="color: #cbd5e1; text-decoration: none;" target="_blank">Terms &amp; Conditions</a></li>
 <li style="margin-bottom: 8px;"><a href="privacy.html" style="color: #cbd5e1; text-decoration: none;" target="_blank">Privacy Policy</a></li>
-<li style="margin-bottom: 8px;"><a href="terms.html" style="color: #cbd5e1; text-decoration: none;" target="_blank">Refund Policy</a></li>
+<li style="margin-bottom: 8px;"><a href="refund.html" style="color: #cbd5e1; text-decoration: none;" target="_blank">Refund Policy</a></li>
 </ul>
 </div>
 <div style="flex: 1; min-width: 250px;">
@@ -5260,5 +5350,45 @@ window.addEventListener('beforeunload',function(e){
 </div>
 </div>
 </footer>
+<script>
+  // Setup Lemon Squeezy to listen for successful payment
+  window.createLemonSqueezy = function() {
+    LemonSqueezy.Setup({
+      eventHandler: function(event) {
+        if (event.event === 'Checkout.Success') {
+          generateCleanPDF();
+        }
+      }
+    });
+  };
+
+  function generateCleanPDF() {
+    // 1. Target the exact CV template area
+    const element = document.getElementById('printArea');
+    
+    // 2. Temporarily hide the payment button so it doesn't print
+    const payButton = document.getElementById('pay-download-btn');
+    if (payButton) payButton.style.display = 'none';
+
+    // 3. Strictly exclude all platform logos or watermarks
+    const watermarks = document.querySelectorAll('.watermark, .logo-badge');
+    watermarks.forEach(wm => wm.style.display = 'none');
+
+    // 4. PDF Quality Settings (4K Crispness)
+    const opt = {
+      margin:       0,
+      filename:     'Professional_CV_GlobalCV.pdf',
+      image:        { type: 'jpeg', quality: 1.0 },
+      html2canvas:  { scale: 2, useCORS: true },
+      jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+
+    // 5. Generate, save, and restore the screen
+    html2pdf().set(opt).from(element).save().then(() => {
+      if (payButton) payButton.style.display = 'block';
+      watermarks.forEach(wm => wm.style.display = 'block');
+    });
+  }
+</script>
 </body>
 </html>
