@@ -1,0 +1,49 @@
+<svg width="1200" height="760" viewBox="0 0 1200 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>GlobalCV.pro logo fixed</title>
+  <desc>Sharp geometric GlobalCV.pro logo with corrected tagline spacing.</desc>
+  <defs>
+    <linearGradient id="navyBlue" x1="250" y1="80" x2="850" y2="470" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#07111F"/>
+      <stop offset="0.48" stop-color="#0B1F3A"/>
+      <stop offset="1" stop-color="#0B4A8F"/>
+    </linearGradient>
+    <linearGradient id="wordBlue" x1="170" y1="540" x2="1030" y2="540" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#07111F"/>
+      <stop offset="0.6" stop-color="#0B1F3A"/>
+      <stop offset="1" stop-color="#0B4A8F"/>
+    </linearGradient>
+    <filter id="softShadow" x="220" y="40" width="760" height="480" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="8" stdDeviation="5" flood-color="#07111F" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="760" fill="#FFFFFF"/>
+
+  <!-- Geometric monogram mark -->
+  <g filter="url(#softShadow)">
+    <!-- Left G block -->
+    <path d="M285 70 H560 V132 H365 V430 H520 V492 H285 Z" fill="url(#navyBlue)"/>
+    <path d="M405 200 H560 V430 H500 V260 H405 Z" fill="url(#navyBlue)" opacity="0.96"/>
+
+    <!-- Right C block -->
+    <path d="M610 135 H835 V197 H690 V315 H835 V377 H690 V430 H835 V492 H610 Z" fill="url(#navyBlue)"/>
+
+    <!-- Central V check shape using white negative-space style plus blue lower surfaces -->
+    <path d="M400 315 H480 L600 445 L720 315 H800 L625 510 H575 Z" fill="#FFFFFF"/>
+    <path d="M435 315 H498 L600 425 L702 315 H765 L615 482 H585 Z" fill="url(#navyBlue)"/>
+    <path d="M500 260 H560 V430 L500 365 Z" fill="url(#navyBlue)" opacity="0.98"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="600" y="595" text-anchor="middle"
+        font-family="Inter, Arial, Helvetica, sans-serif"
+        font-size="58" font-weight="900" letter-spacing="18"
+        fill="url(#wordBlue)">GLOBALCV.PRO</text>
+
+  <!-- Corrected tagline: no line crossing through text -->
+  <text x="600" y="650" text-anchor="middle"
+        font-family="Inter, Arial, Helvetica, sans-serif"
+        font-size="18" font-weight="800" letter-spacing="9"
+        fill="#07111F">BUILD YOUR FUTURE. PRESENT IT PROFESSIONALLY.</text>
+
+</svg>
