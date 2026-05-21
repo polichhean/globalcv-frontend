@@ -81,7 +81,7 @@
     .topbar-logo{
       display:flex;align-items:center;gap:18px;text-decoration:none;flex-shrink:0;
     }
-    .topbar-logo img{height:78px;width:auto;max-width:340px;object-fit:contain;display:block}
+    .topbar-logo img{height:64px;width:auto;max-width:260px;object-fit:contain;display:block}
     .topbar-brand-line{
       font-size:15px;font-weight:800;color:#1B2E5E;
       letter-spacing:.01em;white-space:nowrap;
@@ -913,7 +913,7 @@
     }
     @media(max-width:600px){
       .tpl-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
-      .topbar-logo img{height:58px;max-width:240px}
+      .topbar-logo img{height:44px;max-width:190px}
       .topbar-tagline{display:none}
 
       /* Step bar pills: hide label text, keep numbenavy circle only */
@@ -1233,6 +1233,62 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
   color:#FFFFFF!important;
 }
 
+
+    /* ── FAQ SECTION ── */
+    .faq-section{padding:34px 38px}
+    .faq-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:8px}
+    .faq-item{background:#fff;border:1.5px solid #dbe7f2;padding:20px 22px}
+    .faq-q{font-size:14px;font-weight:900;color:#0B1F3A;margin:0 0 8px;line-height:1.35}
+    .faq-a{font-size:13px;color:#64748B;line-height:1.7;margin:0}
+    @media(max-width:768px){.faq-grid{grid-template-columns:1fr}}
+    @media(max-width:600px){.faq-section{padding:26px 18px}}
+
+    /* ── TRUST BAR ── */
+    .trust-bar{display:flex;gap:20px;flex-wrap:wrap;margin-top:18px}
+    .trust-point{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:800;color:#1B2E5E}
+    .trust-point svg{flex:0 0 auto;color:#2563A6}
+    @media(max-width:600px){.trust-bar{gap:12px}.trust-point{font-size:11px}}
+
+    /* ── PAYMENT TRUST NOTE ── */
+    .pay-trust-note{
+      background:#F0F7FF;border:1.5px solid #CBD5E1;
+      padding:12px 16px;margin-bottom:18px;
+      font-size:13px;font-weight:700;color:#0B1F3A;
+      line-height:1.55;text-align:center;
+    }
+    .pay-trust-note span{display:block;color:#64748B;font-size:12px;font-weight:600;margin-top:3px}
+
+    /* ── GLOBAL NOTICE MODAL ── */
+    .global-notice-backdrop{
+      display:none;position:fixed;inset:0;
+      background:rgba(7,17,31,.55);z-index:9998;
+    }
+    .global-notice-backdrop.visible{display:block}
+    .global-notice{
+      display:none;position:fixed;
+      top:50%;left:50%;transform:translate(-50%,-50%);
+      width:min(460px,calc(100% - 32px));
+      background:#ffffff;border:2px solid #CBD5E1;
+      box-shadow:0 24px 70px rgba(7,17,31,.25);
+      z-index:9999;padding:26px;color:#0B1F3A;
+    }
+    .global-notice.visible{display:block}
+    .global-notice-title{
+      font-size:18px;font-weight:900;color:#0B1F3A;margin-bottom:8px;
+    }
+    .global-notice-message{
+      font-size:14px;line-height:1.65;color:#475569;margin-bottom:22px;
+    }
+    .global-notice-close{
+      width:100%;border:none;background:#0B1F3A;color:#fff;
+      font-size:14px;font-weight:900;padding:12px 18px;
+      cursor:pointer;font-family:inherit;transition:background .15s;
+    }
+    .global-notice-close:hover{background:#2563A6}
+    .global-notice[data-type="warning"]{border-color:#2563A6}
+    .global-notice[data-type="error"]{border-color:#0B1F3A}
+    .global-notice[data-type="success"]{border-color:#2563A6}
+    @media(max-width:480px){.global-notice{padding:20px}}
 </style>
 <body>
 <!-- GlobalCV.pro rebrand applied: corporate blue/navy palette, sharp rectangular design, no rounded template styling. -->
@@ -1259,16 +1315,21 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
 <div class="landing-card landing-hero">
 <div>
 <div class="landing-kicker">GlobalCV.pro • Professional Resume Builder</div>
-<h1>Build a professional resume for global opportunities</h1>
-<p>Choose a clean corporate template, fill in your details, preview your resume, and download a professional PDF for only $1.</p>
+<h1>Create a professional resume in minutes.</h1>
+<p>Choose a modern template, customize your details, preview for free, and download a clean PDF for only $1.</p>
 <div class="landing-cta-row">
-<button class="landing-primary-btn" onclick="document.querySelector('.main')?.scrollIntoView({behavior:'smooth'});">Start Creating Resume</button>
-<div class="landing-secondary-note">For students, professionals, executives, and global job seekers.</div>
+<button class="landing-primary-btn" onclick="document.querySelector('.main')?.scrollIntoView({behavior:'smooth'});">Create My Resume</button>
+<div class="landing-secondary-note">No account required. No watermark.</div>
 </div>
 <div class="landing-stat-row">
 <div class="landing-stat"><b>$1</b><span>Simple price</span></div>
 <div class="landing-stat"><b>33+</b><span>Resume templates</span></div>
 <div class="landing-stat"><b>5–10</b><span>Minutes to create</span></div>
+</div>
+<div class="trust-bar">
+  <div class="trust-point"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Preview before payment</div>
+  <div class="trust-point"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4z"/></svg>Secure Lemon Squeezy checkout</div>
+  <div class="trust-point"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M14 2H6v20h12V6z"/><path d="M14 2v4h4"/></svg>Clean PDF, no watermark</div>
 </div>
 </div>
 <div class="landing-visual"><div class="cv-stack"><div class="cv-stack-card back"></div><div class="cv-stack-card front"><div class="cv-demo-top"><div class="cv-demo-avatar"></div><div class="cv-demo-lines"><div class="cv-demo-line"></div><div class="cv-demo-line short"></div></div></div><div class="cv-demo-section"></div><div class="cv-demo-row w85"></div><div class="cv-demo-row w70"></div><div class="cv-demo-row w55"></div><div class="cv-demo-section"></div><div class="cv-demo-row w85"></div><div class="cv-demo-row w70"></div><div class="cv-demo-row w55"></div></div></div></div>
@@ -1303,9 +1364,32 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
 <div class="audience-card"><div class="audience-icon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M21 12a9 9 0 0 1-15.5 6.2"></path><path d="M3 12A9 9 0 0 1 18.5 5.8"></path><path d="M18 2v4h4"></path><path d="M6 22v-4H2"></path></svg></div><h3>Career movers</h3></div>
 </div>
 </div>
+<div class="landing-card" id="faq-section">
+<div class="faq-section">
+<div class="landing-section-head"><h2>Frequently Asked Questions</h2><p>Everything you need to know before building your resume.</p></div>
+<div class="faq-grid">
+  <div class="faq-item">
+    <p class="faq-q">Can I preview before paying?</p>
+    <p class="faq-a">Yes. You can build and preview your resume for free. Payment is only required when downloading the PDF.</p>
+  </div>
+  <div class="faq-item">
+    <p class="faq-q">Will the PDF have a watermark?</p>
+    <p class="faq-a">No. Your downloaded PDF will be clean and watermark-free.</p>
+  </div>
+  <div class="faq-item">
+    <p class="faq-q">Is this a one-time payment?</p>
+    <p class="faq-a">Yes. The $1 payment is a one-time charge for your resume PDF download. No subscriptions, no hidden fees.</p>
+  </div>
+  <div class="faq-item">
+    <p class="faq-q">Do I need to create an account?</p>
+    <p class="faq-a">No account is required. You can create, preview, and download your resume directly — no sign-up needed.</p>
+  </div>
+</div>
+</div>
+</div>
 <div class="landing-card price-card" id="price-section">
-<div><h2>Clear price: only $1</h2><p>Preview your resume first, then continue to the payment step. Current version uses demo/manual payment mode while real bank gateway is not connected yet.</p><div class="landing-cta-row"><button class="landing-primary-btn" onclick="document.querySelector('.main')?.scrollIntoView({behavior:'smooth'});" style="background:#fff;color:#1B2E5E;">Create My Resume Now</button></div></div>
-<div class="price-badge"><span>ONLY</span><b>$1</b></div>
+<div><h2>Clear price: only $1</h2><p>Build and preview your resume for free. Pay only when you are ready to download a professional PDF with no watermark.</p><div class="landing-cta-row"><button class="landing-primary-btn" onclick="document.querySelector('.main')?.scrollIntoView({behavior:'smooth'});" style="background:#fff;color:#1B2E5E;">Create My Resume Now</button></div></div>
+<div class="price-badge"><span>ONLY</span><b>$1</b><span style="font-size:10px;font-weight:800;letter-spacing:.08em;color:#2563A6;margin-top:5px;text-transform:uppercase">PDF DOWNLOAD</span></div>
 </div>
 </section>
 <!-- ── HERO BANNER ── -->
@@ -1349,13 +1433,13 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
 <!-- ── STEP BAR ── -->
 <div class="steps-bar-wrap" id="progress-bar">
 <div class="steps-bar-inner">
-<div class="step-pill active" id="pill-1"><span class="n">1</span><span id="pill1-label">Information</span></div>
+<div class="step-pill active" id="pill-1"><span class="n">1</span><span id="pill1-label">Fill Details</span></div>
 <div class="steps-connector"></div>
-<div class="step-pill" id="pill-2"><span class="n">2</span><span id="pill2-label">Template</span></div>
+<div class="step-pill" id="pill-2"><span class="n">2</span><span id="pill2-label">Choose Template</span></div>
 <div class="steps-connector"></div>
-<div class="step-pill" id="pill-3"><span class="n">3</span><span id="pill3-label">Payment</span></div>
+<div class="step-pill" id="pill-3"><span class="n">3</span><span id="pill3-label">Pay $1</span></div>
 <div class="steps-connector"></div>
-<div class="step-pill" id="pill-4"><span class="n">4</span><span id="pill4-label">Download</span></div>
+<div class="step-pill" id="pill-4"><span class="n">4</span><span id="pill4-label">Download PDF</span></div>
 </div>
 </div>
 <!-- ── MAIN ── -->
@@ -1747,7 +1831,7 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
 <div class="section-card">
 <div style="margin-bottom:22px">
 <h2 style="font-size:22px;font-weight:900;color:#1B2E5E">Choose Your Template</h2>
-<p style="font-size:14px;color:var(--muted);margin-top:4px">Click to select · Click Preview for full-screen view</p>
+<p style="font-size:14px;color:var(--muted);margin-top:4px">Review your template carefully before payment. Click to select, or click Preview for full-screen view. You can go back and edit your details anytime.</p>
 </div>
 <div class="tpl-filter-panel" id="tplFilterPanel">
 <div class="tpl-filter-top">
@@ -1798,11 +1882,17 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
     <div class="pay-order-row"><span id="por-total">Total (One-time)</span><strong>$1 USD</strong></div>
   </div>
 
+  <!-- ── TRUST NOTE ── -->
+  <div class="pay-trust-note">
+    Secure checkout powered by Lemon Squeezy.
+    <span>One-time payment · No subscription · Your PDF will have no watermark.</span>
+  </div>
+
   <!-- ── MAIN CHECKOUT BUTTON ──
        class="lemonsqueezy-button" activates the Lemon Squeezy overlay when LS JS is loaded.
        id="pay-download-btn" is used by GLOBALCV_CONFIG / handleCheckout() logic.
        href is set dynamically by GLOBALCV_CONFIG.LEMON_CHECKOUT_URL when payment is enabled. -->
-  <a href="#" class="lemonsqueezy-button demo-paid-btn" id="pay-download-btn" onclick="handleCheckout();return false;" style="display:block;text-align:center;text-decoration:none">Pay $1.00 &amp; Download CV</a>
+  <a href="https://globalcvpro.lemonsqueezy.com/checkout/buy/4c0cb248-e836-4605-b028-1466a43d8907" class="lemonsqueezy-button demo-paid-btn" id="pay-download-btn" onclick="handleCheckout();return false;" style="display:block;text-align:center;text-decoration:none">Pay $1 &amp; Download PDF</a>
 
   <!-- ── TRUST INDICATORS ── -->
   <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:18px;font-size:12px;font-weight:700;color:#6b7a94;flex-wrap:wrap">
@@ -1824,8 +1914,8 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
     <svg aria-label="PayPal" height="24" role="img" viewBox="0 0 38 24" width="38" xmlns="http://www.w3.org/2000/svg"><rect fill="#003087" height="24" rx="3" width="38"/><text fill="#009CDE" font-family="Arial,sans-serif" font-size="10" font-weight="900" x="4" y="16">Pay</text><text fill="#ffffff" font-family="Arial,sans-serif" font-size="10" font-weight="900" x="19" y="16">Pal</text></svg>
   </div>
 
-  <!-- ── PAYMENT SUCCESS MESSAGE ── preserved for demoConfirmPayment() JS function -->
-  <div class="demo-payment-success" id="demoPaymentSuccess">Payment confirmed. You can now download your CV.</div>
+  <!-- ── PAYMENT SUCCESS MESSAGE ── used by payment success callback -->
+  <div class="demo-payment-success" id="demoPaymentSuccess">Payment confirmed. Your PDF is ready to download.</div>
 
   <!-- ── LEGACY LOADER ── hidden; used only by the backend fallback flow when BACKEND_URL is set -->
   <div id="payment-loader-ui" style="display:none;margin-top:20px;width:100%">
@@ -1889,7 +1979,7 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
 <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
 <!-- ── STICKY NAV ── -->
 <div class="sticky-nav" id="stickyNav">
-<div class="sticky-nav-info" id="stickyNavInfo">Step 1 of 4 · <strong>Information</strong></div>
+<div class="sticky-nav-info" id="stickyNavInfo">Step 1 of 4 · <strong>Fill Details</strong></div>
 <div class="btn-row">
 <button class="btn ghost" id="stickyBack" onclick="stickyBack()" style="display:none">← Back</button>
 <button class="btn primary" id="stickyNext" onclick="stickyNext()">Next: Choose Template →</button>
@@ -1919,7 +2009,7 @@ const T = {
     dlTitle:"Payment Confirmed!",dlNameLbl:"Applicant",dlTplLbl:"Template",dlLangLbl:"Language",
     dlBtn:"Download Resume (PDF)",dlNew:"+ Create Another CV",dlHome:"Back to Home",
     modalCancel:"Cancel",modalSelect:"Select This Template →",
-    pill1:"Information",pill2:"Template",pill3:"Payment",pill4:"Download"
+    pill1:"Fill Details",pill2:"Choose Template",pill3:"Pay $1",pill4:"Download PDF"
   },
   km:{
     brandSub:" CV ·  $1 · ",
@@ -2063,15 +2153,15 @@ function updateStickyNav(){
   nav.classList.toggle('visible',show);
   document.body.classList.toggle('has-sticky-nav',show);
   if(currentScreen===1){
-    if(info)info.innerHTML='Step 1 of 4 · <strong>Information</strong>';
+    if(info)info.innerHTML='Step 1 of 4 · <strong>Fill Details</strong>';
     if(back)back.style.display='none';
     if(next){next.style.display='';next.textContent='Next: Choose Template →';}
   }else if(currentScreen===2){
     if(info)info.innerHTML='Step 2 of 4 · <strong>Choose Template</strong>';
     if(back){back.style.display='';back.textContent='← Back';}
-    if(next){next.style.display='';next.textContent='Next: Payment →';}
+    if(next){next.style.display='';next.textContent='Next: Pay $1 →';}
   }else if(currentScreen===3){
-    if(info)info.innerHTML='Step 3 of 4 · <strong>Payment</strong>';
+    if(info)info.innerHTML='Step 3 of 4 · <strong>Pay $1</strong>';
     if(back){back.style.display='';back.textContent='← Back to Templates';}
     if(next)next.style.display='none';
   }
@@ -4325,10 +4415,11 @@ let currentTransactionId = null;
 
 // ── CHECKOUT HANDLER ──────────────────────────────────────────────────────────
 async function handleCheckout() {
+  console.log("Checkout clicked");
   const d = buildData();
 
   if (!d.name || !d.title) {
-    alert("Please fill in your name and job title before downloading.");
+    showNotice("Please add your full name and job title before continuing.", "warning");
     return;
   }
 
@@ -4348,6 +4439,7 @@ async function handleCheckout() {
     const checkoutUrl =
       GLOBALCV_CONFIG.LEMON_CHECKOUT_URL +
       separator + 'checkout[custom][client_reference_id]=' + encodeURIComponent(clientReferenceId);
+    console.log("Checkout URL:", checkoutUrl);
     window.location.href = checkoutUrl;
     return;
   }
@@ -4355,7 +4447,7 @@ async function handleCheckout() {
   // ── LEGACY BACKEND FLOW (fallback if LEMON_CHECKOUT_URL is not set) ────────
   if (!GLOBALCV_CONFIG.BACKEND_URL) {
     console.info("Backend URL not configured yet.");
-    alert("Payment is not available yet. Please check back soon.");
+    showNotice("Payment is not available right now. Please try again later.", "warning");
     return;
   }
 
@@ -4374,12 +4466,12 @@ async function handleCheckout() {
       document.getElementById('qrImage').src = data.qrUrl;
       startPolling();
     } else {
-      alert("Payment initialization failed.");
+      showNotice("We could not start the payment process. Please try again.", "error");
       closePaymentModal();
     }
   } catch (error) {
     console.error("Checkout error:", error);
-    alert("Server connection failed.");
+    showNotice("Connection failed. Please check your internet connection and try again.", "error");
     closePaymentModal();
   }
 }
@@ -5301,6 +5393,65 @@ window.addEventListener('beforeunload',function(e){
       watermarks.forEach(wm => wm.style.display = 'block');
     });
   }
+
+/* ── GLOBAL NOTICE ─────────────────────────────────────────────────────────── */
+function showNotice(message, type, title) {
+  const notice   = document.getElementById('globalNotice');
+  const backdrop = document.getElementById('globalNoticeBackdrop');
+  const titleEl  = document.getElementById('globalNoticeTitle');
+  const msgEl    = document.getElementById('globalNoticeMessage');
+
+  if (!notice || !backdrop || !titleEl || !msgEl) {
+    console.warn('[GlobalCV notice]', message);
+    return;
+  }
+
+  const cleanType = type || 'info';
+  const titleMap  = {
+    info:    'Notice',
+    warning: 'Before you continue',
+    error:   'Action needed',
+    success: 'Done'
+  };
+
+  notice.setAttribute('data-type', cleanType);
+  titleEl.textContent = title || titleMap[cleanType] || 'Notice';
+  msgEl.textContent   = message;
+
+  backdrop.classList.add('visible');
+  notice.classList.add('visible');
+
+  // Focus the close button for keyboard accessibility
+  const closeBtn = notice.querySelector('.global-notice-close');
+  if (closeBtn) setTimeout(() => closeBtn.focus(), 50);
+}
+
+function hideNotice() {
+  const notice   = document.getElementById('globalNotice');
+  const backdrop = document.getElementById('globalNoticeBackdrop');
+  if (notice)   notice.classList.remove('visible');
+  if (backdrop) backdrop.classList.remove('visible');
+}
+
+// Close on Escape key — does not interfere with other modals because it only
+// fires when the notice itself is actually visible.
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const notice = document.getElementById('globalNotice');
+    if (notice && notice.classList.contains('visible')) {
+      hideNotice();
+      e.stopPropagation();
+    }
+  }
+});
 </script>
+
+<!-- ── GLOBAL NOTICE MODAL ── -->
+<div id="globalNoticeBackdrop" class="global-notice-backdrop" onclick="hideNotice()"></div>
+<div id="globalNotice" class="global-notice" data-type="info" role="dialog" aria-modal="true" aria-labelledby="globalNoticeTitle" aria-describedby="globalNoticeMessage">
+  <div class="global-notice-title" id="globalNoticeTitle">Notice</div>
+  <div class="global-notice-message" id="globalNoticeMessage"></div>
+  <button type="button" class="global-notice-close" onclick="hideNotice()">OK</button>
+</div>
 </body>
 </html>
