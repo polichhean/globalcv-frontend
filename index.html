@@ -4412,6 +4412,7 @@ function getClientReferenceId() {
 
 let paymentInterval;
 let currentTransactionId = null;
+let isGoingToCheckout = false;  // Set true before LS redirect so beforeunload skips the warning
 
 // ── CHECKOUT HANDLER ──────────────────────────────────────────────────────────
 async function handleCheckout() {
@@ -4440,6 +4441,7 @@ async function handleCheckout() {
       GLOBALCV_CONFIG.LEMON_CHECKOUT_URL +
       separator + 'checkout[custom][client_reference_id]=' + encodeURIComponent(clientReferenceId);
     console.log("Checkout URL:", checkoutUrl);
+    isGoingToCheckout = true;
     window.location.href = checkoutUrl;
     return;
   }
@@ -4559,6 +4561,11 @@ renderTemplates();
 selectTpl(0);
 updateStickyNav();
 handlePaymentReturn(); // Check if user returned from Lemon Squeezy checkout
+
+// Suppress beforeunload warning when any LS checkout button is clicked directly
+document.querySelectorAll('.lemonsqueezy-button').forEach(function(btn){
+  btn.addEventListener('click', function(){ isGoingToCheckout = true; });
+});
 
 /* ── QUILL HELPERS ── */
 const QUILL_TOOLBAR=[[{header:false}],['bold','italic'],[{'list':'bullet'}]];
@@ -5015,6 +5022,7 @@ document.addEventListener('change',function(){
 
 /* ── UNSAVED WARNING ── */
 window.addEventListener('beforeunload',function(e){
+  if(isGoingToCheckout) return;  // User is intentionally going to checkout — suppress warning
   // Always warn if user has progressed past step 1
   if(currentScreen>1){
     e.preventDefault();
