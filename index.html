@@ -40,6 +40,78 @@
 <link href="favicon.png" rel="icon" type="image/png"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
+
+<!-- Structured Data: SoftwareApplication -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "GlobalCV.pro",
+  "url": "https://globalcv.pro/",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+  "description": "Create ATS-friendly resumes with international templates, preview for free, and download a clean PDF for $1.",
+  "offers": {
+    "@type": "Offer",
+    "price": "1",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+
+<!-- Structured Data: Organization -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "GlobalCV.pro",
+  "url": "https://globalcv.pro/",
+  "email": "support@globalcv.pro",
+  "logo": "https://globalcv.pro/main-logo.png"
+}
+</script>
+
+<!-- Structured Data: FAQPage -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can I preview my resume before paying?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. You can build and preview your resume for free. Payment is only required when downloading the PDF."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will my downloaded resume have a watermark?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Your downloaded PDF will be clean and watermark-free."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is GlobalCV.pro a subscription?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. GlobalCV.pro uses a one-time $1 payment for PDF download."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need to create an account?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No account is required to create, preview, and download your resume."
+      }
+    }
+  ]
+}
+</script>
 </head>
 <style>
 :root{
@@ -1630,6 +1702,43 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
     body.dark-mode .payment-policy-note{color:#AAB7C8!important}
     body.dark-mode .payment-policy-note a{color:#2F80C9!important}
     body.dark-mode .payment-policy-note a:hover{color:#EAF3FB!important}
+
+    /* ── SEO CONTENT SECTION ── */
+    .seo-section{
+      background:#F8FAFC;
+      border-top:1px solid #E2E8F0;
+      border-bottom:1px solid #E2E8F0;
+      padding:36px 20px;
+    }
+    .seo-section-inner{max-width:1180px;margin:0 auto}
+    .seo-heading{
+      font-size:22px;font-weight:900;color:#0B1F3A;
+      margin-bottom:12px;letter-spacing:-0.02em;line-height:1.25;
+    }
+    .seo-body{
+      font-size:14px;color:#64748B;line-height:1.75;
+      max-width:720px;margin-bottom:22px;
+    }
+    .seo-points{display:flex;gap:16px;flex-wrap:wrap}
+    .seo-point{
+      display:flex;align-items:center;gap:10px;
+      background:#ffffff;border:1.5px solid #E2E8F0;
+      padding:12px 18px;flex:1;min-width:200px;
+    }
+    .seo-point-num{font-size:13px;font-weight:900;color:#2563A6;flex:0 0 auto;min-width:28px}
+    .seo-point-text{font-size:13px;font-weight:700;color:#0B1F3A;line-height:1.4}
+    /* Dark mode */
+    body.dark-mode .seo-section{background:#07111F!important;border-color:#1E3A5F!important}
+    body.dark-mode .seo-heading{color:#EAF3FB!important}
+    body.dark-mode .seo-body{color:#AAB7C8!important}
+    body.dark-mode .seo-point{background:#0B1F3A!important;border-color:#1E3A5F!important}
+    body.dark-mode .seo-point-num{color:#2F80C9!important}
+    body.dark-mode .seo-point-text{color:#EAF3FB!important}
+    @media(max-width:640px){
+      .seo-section{padding:28px 16px}
+      .seo-heading{font-size:19px}
+      .seo-points{flex-direction:column}
+    }
 </style>
 <body>
 <!-- GlobalCV.pro rebrand applied: corporate blue/navy palette, sharp rectangular design, no rounded template styling. -->
@@ -1734,6 +1843,29 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
 <div class="price-badge"><span>ONLY</span><b>$1</b><span style="font-size:10px;font-weight:800;letter-spacing:.08em;color:#2563A6;margin-top:5px;text-transform:uppercase">PDF DOWNLOAD</span></div>
 </div>
 </section>
+
+<!-- ── SEO CONTENT SECTION ── -->
+<div class="seo-section" aria-label="About GlobalCV.pro">
+  <div class="seo-section-inner">
+    <h2 class="seo-heading">Global Resume Builder for Professional Job Applications</h2>
+    <p class="seo-body">GlobalCV.pro helps students, professionals, managers, and international job seekers create modern, ATS-friendly resumes and CVs. Choose from professional templates, preview your resume for free, and download a clean PDF with no watermark for only $1.</p>
+    <div class="seo-points">
+      <div class="seo-point">
+        <span class="seo-point-num">01</span>
+        <span class="seo-point-text">ATS-friendly resume and CV templates</span>
+      </div>
+      <div class="seo-point">
+        <span class="seo-point-num">02</span>
+        <span class="seo-point-text">Free preview before payment</span>
+      </div>
+      <div class="seo-point">
+        <span class="seo-point-num">03</span>
+        <span class="seo-point-text">One-time $1 PDF download with no watermark</span>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ── HERO BANNER ── -->
 <div class="banner-wrap" id="banner">
 <button class="banner-arrow left" onclick="moveBanner(-1)">←</button>
