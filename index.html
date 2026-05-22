@@ -1289,6 +1289,347 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
     .global-notice[data-type="error"]{border-color:#0B1F3A}
     .global-notice[data-type="success"]{border-color:#2563A6}
     @media(max-width:480px){.global-notice{padding:20px}}
+
+    /* ── DARK MODE TOGGLE BUTTON ── */
+    .theme-toggle{
+      padding:7px 16px;
+      background:#0B1F3A;color:#EAF3FB;
+      border:1.5px solid #2563A6;
+      font-size:13px;font-weight:700;
+      cursor:pointer;font-family:inherit;
+      white-space:nowrap;flex-shrink:0;
+      transition:background .18s,color .18s;
+    }
+    .theme-toggle:hover{background:#2563A6;color:#fff}
+    body.dark-mode .theme-toggle{background:#EAF3FB;color:#0B1F3A;border-color:#CBD5E1}
+    body.dark-mode .theme-toggle:hover{background:#CBD5E1}
+
+    /* ── DARK MODE ── */
+    body.dark-mode{
+      --bg:#07111F;--surface:#0B1F3A;--text:#EAF3FB;
+      --muted:#AAB7C8;--line:#1E3A5F;
+      --primary:#EAF3FB;--primary-soft:#102A4C;
+      --accent:#2F80C9;--accent-soft:#102A4C;--blue:#2F80C9;
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      background:linear-gradient(160deg,#07111F 0%,#0B1F3A 100%)!important;
+      color:#EAF3FB!important;
+    }
+    /* Topbar */
+    body.dark-mode .topbar{background:rgba(11,31,58,.98)!important;border-bottom-color:#2F80C9!important}
+    body.dark-mode .topbar-brand-line{color:#AAB7C8!important;border-left-color:#1E3A5F!important}
+    body.dark-mode .topbar-tagline{background:#102A4C!important;border-color:#1E3A5F!important;color:#AAB7C8!important}
+    /* Steps bar */
+    body.dark-mode .steps-bar-wrap{background:#0B1F3A!important;border-bottom-color:#1E3A5F!important}
+    body.dark-mode .step-pill{background:#102A4C!important;border-color:#1E3A5F!important;color:#AAB7C8!important}
+    body.dark-mode .step-pill .n{background:#1E3A5F!important;color:#AAB7C8!important}
+    body.dark-mode .step-pill.active{background:#0B1F3A!important;border-color:#2F80C9!important;color:#EAF3FB!important}
+    body.dark-mode .step-pill.active .n,body.dark-mode .step-pill.done .n{background:#2F80C9!important;color:#fff!important}
+    body.dark-mode .steps-connector{background:#1E3A5F!important}
+    /* Landing cards */
+    body.dark-mode .landing-card{background:#0B1F3A!important;border-color:#1E3A5F!important}
+    body.dark-mode .landing-hero{background:linear-gradient(135deg,#0B1F3A 0%,#102A4C 100%)!important;border-left-color:#2F80C9!important}
+    body.dark-mode .landing-hero h1,body.dark-mode .landing-section-head h2{color:#EAF3FB!important}
+    body.dark-mode .landing-hero p,body.dark-mode .landing-secondary-note,body.dark-mode .landing-section-head p{color:#AAB7C8!important}
+    body.dark-mode .landing-kicker{background:#102A4C!important;color:#AAB7C8!important;border-color:#1E3A5F!important}
+    body.dark-mode .landing-stat{background:#102A4C!important;border-color:#1E3A5F!important}
+    body.dark-mode .landing-stat span{color:#AAB7C8!important}
+    /* How/Why/Audience/Mini cards */
+    body.dark-mode .how-card{background:#102A4C!important;border-color:#1E3A5F!important}
+    body.dark-mode .how-card h3{color:#EAF3FB!important}
+    body.dark-mode .how-card p{color:#AAB7C8!important}
+    body.dark-mode .why-card{background:#0B1F3A!important;border-color:#1E3A5F!important}
+    body.dark-mode .why-card h3{color:#EAF3FB!important}
+    body.dark-mode .why-card p{color:#AAB7C8!important}
+    body.dark-mode .audience-card{background:#102A4C!important;border-color:#1E3A5F!important}
+    body.dark-mode .audience-card h3{color:#EAF3FB!important}
+    body.dark-mode .mini-template{background:#102A4C!important;border-color:#1E3A5F!important}
+    body.dark-mode .mini-template b{color:#EAF3FB!important}
+    body.dark-mode .mini-paper{background:#1E3A5F!important;border-color:#2F80C9!important}
+    /* Section cards (form panels, payment) */
+    body.dark-mode .section-card{background:#0B1F3A!important;border-color:#1E3A5F!important}
+    /* Accordion */
+    body.dark-mode .acc-card{background:#0B1F3A!important;box-shadow:0 4px 18px rgba(0,0,0,.3)!important}
+    body.dark-mode .acc-card.open{border-color:#2F80C9!important}
+    body.dark-mode .acc-title{color:#EAF3FB!important}
+    body.dark-mode .acc-header{color:#EAF3FB!important}
+    body.dark-mode .acc-body{color:#AAB7C8!important}
+    /* Sub-item cards */
+    body.dark-mode .sub-item{background:#102A4C!important;border-color:#1E3A5F!important}
+    body.dark-mode .delete-btn{background:#1E3A5F!important;color:#AAB7C8!important}
+    /* Inputs / selects / textareas */
+    body.dark-mode input,body.dark-mode select,body.dark-mode textarea{background:#07111F!important;border-color:#1E3A5F!important;color:#EAF3FB!important}
+    body.dark-mode input:focus,body.dark-mode select:focus,body.dark-mode textarea:focus{border-color:#2F80C9!important;background:#0B1F3A!important}
+    body.dark-mode .hint{color:#AAB7C8!important}
+    /* Template filter panel */
+    body.dark-mode .tpl-filter-btn{background:#102A4C!important;border-color:#1E3A5F!important;color:#AAB7C8!important}
+    body.dark-mode .tpl-filter-btn:hover{border-color:#2F80C9!important;color:#EAF3FB!important}
+    body.dark-mode .tpl-filter-btn.active{background:#2F80C9!important;border-color:#2F80C9!important;color:#fff!important}
+    body.dark-mode .tpl-card{background:#0B1F3A!important;border-color:#1E3A5F!important}
+    body.dark-mode .tpl-name{color:#EAF3FB!important}
+    body.dark-mode .tpl-pill{background:#102A4C!important;color:#AAB7C8!important}
+    /* Sticky nav */
+    body.dark-mode .sticky-nav{background:#07111F!important;border-top-color:#2F80C9!important}
+    body.dark-mode .sticky-nav-info{color:#AAB7C8!important}
+    body.dark-mode .sticky-nav-info strong{color:#EAF3FB!important}
+    /* Download section */
+    body.dark-mode .download-wrap h2{color:#EAF3FB!important}
+    body.dark-mode .download-wrap p{color:#AAB7C8!important}
+    /* Payment trust note */
+    body.dark-mode .pay-trust-note{background:#102A4C!important;border-color:#1E3A5F!important;color:#AAB7C8!important}
+    /* FAQ */
+    body.dark-mode .faq-item{background:#0B1F3A!important;border-color:#1E3A5F!important}
+    body.dark-mode .faq-q{color:#EAF3FB!important}
+    body.dark-mode .faq-a{color:#AAB7C8!important}
+    /* Trust bar */
+    body.dark-mode .trust-point{color:#AAB7C8!important}
+    /* Global notice modal */
+    body.dark-mode .global-notice{background:#0B1F3A!important;border-color:#1E3A5F!important;color:#EAF3FB!important}
+    body.dark-mode .global-notice-title{color:#EAF3FB!important}
+    body.dark-mode .global-notice-message{color:#AAB7C8!important}
+    /* CV TEMPLATE WHITELIST — never invert the printable CV area */
+    body.dark-mode .cv-sheet,
+    body.dark-mode .a4-page,
+    body.dark-mode .tpl-preview-inner,
+    body.dark-mode .cv-new,
+    body.dark-mode #cv-container{background:#ffffff!important;color:initial}
+
+    /* DARK MODE READABILITY FIXES - DO NOT TOUCH PAYMENT LOGIC */
+
+    /* 1 — Accordion / form step cards */
+    body.dark-mode .acc-card{background:#ffffff;border-color:#1E3A5F}
+    body.dark-mode .acc-header{background:#ffffff}
+    body.dark-mode .acc-title{color:#0B1F3A!important}
+    body.dark-mode .acc-sub{color:#475569!important}
+    body.dark-mode .acc-arrow{color:#64748B!important}
+    body.dark-mode .acc-card.open .acc-header{background:#F8FAFC}
+    body.dark-mode .acc-body{background:#F8FAFC}
+
+    /* 2 — Payment summary box */
+    body.dark-mode .pay-order{background:#ffffff;border-color:#CBD5E1;color:#0B1F3A}
+    body.dark-mode .pay-order-row{color:#0B1F3A;border-bottom-color:#CBD5E1}
+    body.dark-mode .pay-order-row span,
+    body.dark-mode .pay-order-row div,
+    body.dark-mode .pay-order-row strong,
+    body.dark-mode .pay-order-row b{color:#0B1F3A!important}
+    body.dark-mode .pay-order-row:last-child,
+    body.dark-mode .pay-order-row:last-child span,
+    body.dark-mode .pay-order-row:last-child div,
+    body.dark-mode .pay-order-row:last-child strong,
+    body.dark-mode .pay-order-row:last-child b{color:#1E4E8C!important}
+
+    /* DARK MODE FORM + NOTICE READABILITY FIXES - CSS ONLY */
+
+    /* 1 — Custom notice modal */
+    body.dark-mode .global-notice{
+      background:#ffffff;color:#0B1F3A;
+      border:2px solid #2563A6;
+      box-shadow:0 24px 70px rgba(7,17,31,.35);
+    }
+    body.dark-mode .global-notice-title{color:#0B1F3A!important}
+    body.dark-mode .global-notice-message{color:#475569!important}
+    body.dark-mode .global-notice-close{
+      display:inline-flex;align-items:center;justify-content:center;
+      min-width:120px;width:auto;
+      background:#0B1F3A;color:#ffffff!important;
+      border:2px solid #0B1F3A;
+      padding:12px 28px;font-weight:900;cursor:pointer;
+    }
+    body.dark-mode .global-notice-close:hover{background:#2563A6;border-color:#2563A6}
+
+    /* 2 — Sub-item form cards */
+    body.dark-mode .sub-item,
+    body.dark-mode .lang-entry{background:#ffffff;border-color:#CBD5E1;color:#0B1F3A}
+    body.dark-mode .sub-item label,
+    body.dark-mode .lang-entry label,
+    body.dark-mode .field label{color:#0B1F3A!important}
+    body.dark-mode .sub-item input,
+    body.dark-mode .sub-item select,
+    body.dark-mode .sub-item textarea,
+    body.dark-mode .lang-entry input,
+    body.dark-mode .lang-entry select,
+    body.dark-mode .lang-entry textarea{background:#F8FAFC;color:#0B1F3A;border-color:#CBD5E1}
+    body.dark-mode .sub-item input:focus,
+    body.dark-mode .sub-item select:focus,
+    body.dark-mode .sub-item textarea:focus,
+    body.dark-mode .lang-entry input:focus,
+    body.dark-mode .lang-entry select:focus,
+    body.dark-mode .lang-entry textarea:focus{
+      background:#ffffff;color:#0B1F3A;
+      border-color:#2563A6;
+      box-shadow:0 0 0 4px rgba(37,99,166,.16);
+    }
+    body.dark-mode .sub-item input::placeholder,
+    body.dark-mode .sub-item textarea::placeholder,
+    body.dark-mode .lang-entry input::placeholder,
+    body.dark-mode .lang-entry textarea::placeholder{color:#64748B!important;opacity:1}
+    body.dark-mode .sub-item select,
+    body.dark-mode .lang-entry select{color:#0B1F3A!important}
+
+    /* 3 — Buttons inside sub-item cards */
+    body.dark-mode .move-btn{background:#F8FAFC;color:#0B1F3A;border:1.5px solid #CBD5E1}
+    body.dark-mode .move-btn:hover{background:#EAF3FB}
+    body.dark-mode .delete-btn{background:#EAF3FB;color:#0B1F3A;border:1.5px solid #CBD5E1}
+    body.dark-mode .delete-btn:hover{background:#CBD5E1}
+
+    /* 4 — Quill rich-text editor inside form cards */
+    body.dark-mode .quill-wrapper{background:#F8FAFC;border-color:#CBD5E1}
+    body.dark-mode .quill-wrapper .ql-toolbar.ql-snow{border-bottom-color:#CBD5E1}
+    body.dark-mode .quill-wrapper .ql-container.ql-snow,
+    body.dark-mode .quill-wrapper .ql-editor{background:#F8FAFC;color:#0B1F3A}
+    body.dark-mode .quill-wrapper .ql-editor.ql-blank::before{color:#64748B!important}
+
+    /* DARK MODE GLOBAL READABILITY AUDIT FIXES - CSS ONLY */
+
+    /* ── 1. Fix !important cascade: acc-card must be white ── */
+    body.dark-mode .acc-card{background:#ffffff!important;border-color:#1E3A5F!important}
+    /* acc-header: white bg, dark text (overrides EAF3FB color from earlier block) */
+    body.dark-mode .acc-header{background:#ffffff!important;color:#0B1F3A!important}
+    body.dark-mode .acc-card.open .acc-header{background:#F8FAFC!important}
+    /* acc-body: light surface, dark readable text (overrides AAB7C8 from earlier block) */
+    body.dark-mode .acc-body{background:#F8FAFC!important;color:#0B1F3A!important}
+
+    /* ── 2. Fix !important cascade: sub-item and lang-entry must be white ── */
+    body.dark-mode .sub-item,
+    body.dark-mode .lang-entry{background:#ffffff!important;border-color:#CBD5E1!important;color:#0B1F3A!important}
+
+    /* ── 3. Fix inputs inside acc-body (not sub-items) — global dark rule overrides them ── */
+    body.dark-mode .acc-body input,
+    body.dark-mode .acc-body select,
+    body.dark-mode .acc-body textarea{background:#F8FAFC!important;color:#0B1F3A!important;border-color:#CBD5E1!important}
+    body.dark-mode .acc-body input:focus,
+    body.dark-mode .acc-body select:focus,
+    body.dark-mode .acc-body textarea:focus{background:#ffffff!important;border-color:#2563A6!important;box-shadow:0 0 0 4px rgba(37,99,166,.16)!important}
+    body.dark-mode .acc-body input::placeholder,
+    body.dark-mode .acc-body textarea::placeholder{color:#64748B!important;opacity:1}
+    body.dark-mode .acc-body select{color:#0B1F3A!important}
+
+    /* ── 4. Fix inputs inside sub-items/lang-entries (global !important overrides them) ── */
+    body.dark-mode .sub-item input,
+    body.dark-mode .sub-item select,
+    body.dark-mode .sub-item textarea,
+    body.dark-mode .lang-entry input,
+    body.dark-mode .lang-entry select,
+    body.dark-mode .lang-entry textarea{background:#F8FAFC!important;color:#0B1F3A!important;border-color:#CBD5E1!important}
+    body.dark-mode .sub-item input:focus,
+    body.dark-mode .sub-item select:focus,
+    body.dark-mode .sub-item textarea:focus,
+    body.dark-mode .lang-entry input:focus,
+    body.dark-mode .lang-entry select:focus,
+    body.dark-mode .lang-entry textarea:focus{background:#ffffff!important;border-color:#2563A6!important;box-shadow:0 0 0 4px rgba(37,99,166,.16)!important}
+    body.dark-mode .sub-item input::placeholder,
+    body.dark-mode .sub-item textarea::placeholder,
+    body.dark-mode .lang-entry input::placeholder,
+    body.dark-mode .lang-entry textarea::placeholder{color:#64748B!important;opacity:1}
+    body.dark-mode .sub-item select,
+    body.dark-mode .lang-entry select{color:#0B1F3A!important}
+
+    /* ── 5. Global form label — all labels are on light-surface cards in this app ── */
+    body.dark-mode label{color:#0B1F3A!important}
+
+    /* ── 6. Template filter panel ── */
+    body.dark-mode .tpl-filter-panel{background:#0B1F3A!important;border-color:#1E3A5F!important}
+    body.dark-mode .tpl-filter-label{color:#AAB7C8!important}
+    body.dark-mode .cfbtn-all{background:#102A4C!important;color:#AAB7C8!important;border-color:#1E3A5F!important}
+    body.dark-mode .cfbtn-all.active{background:#2F80C9!important;color:#fff!important;border-color:#2F80C9!important}
+
+    /* ── 7. Template search input ── */
+    body.dark-mode .tpl-search-input{background:#07111F!important;color:#EAF3FB!important;border-color:#1E3A5F!important}
+    body.dark-mode .tpl-search-input::placeholder{color:#64748B!important;opacity:1}
+    body.dark-mode .tpl-search-icon{color:#AAB7C8!important;opacity:1!important}
+
+    /* ── 8. Template card extra elements ── */
+    body.dark-mode .tpl-desc{color:#AAB7C8!important}
+    body.dark-mode .tpl-selected-badge{background:#2F80C9!important;color:#ffffff!important}
+    body.dark-mode .tpl-zoom-btn.preview-btn{background:rgba(11,31,58,.88)!important;color:#EAF3FB!important}
+
+    /* ── 9. Preview modal (CV preview — modal-box stays white so CV prints correctly) ── */
+    body.dark-mode .modal-box{background:#ffffff!important;color:#0B1F3A!important}
+    body.dark-mode .modal-title{color:#0B1F3A!important}
+    body.dark-mode .modal-sub{color:#475569!important}
+    body.dark-mode .modal-close{background:#F8FAFC!important;color:#0B1F3A!important}
+    body.dark-mode .modal-close:hover{background:#EAF3FB!important;color:#1E4E8C!important}
+    body.dark-mode .modal-cv-wrap{background:#eef3fb!important;border-color:#CBD5E1!important}
+    body.dark-mode .modal-actions .btn{background:#0B1F3A!important;color:#fff!important;border-color:#0B1F3A!important}
+
+    /* ── 10. Section card headings/text (dark bg surface) ── */
+    body.dark-mode .section-card h2,
+    body.dark-mode .section-card h3{color:#EAF3FB!important}
+    body.dark-mode .section-card>p,
+    body.dark-mode .section-card .helper{color:#AAB7C8!important}
+
+    /* ── 11. Screen footer border ── */
+    body.dark-mode .screen-footer{border-top-color:#1E3A5F!important}
+
+    /* ── 12. Payment confirmation success banner ── */
+    body.dark-mode .demo-payment-success{background:#0A2A1A!important;border-color:#1A4D2E!important;color:#6FCF97!important}
+
+    /* ── 13. Landing stat accent (contrast on dark bg) ── */
+    body.dark-mode .landing-stat b{color:#2F80C9!important}
+
+    /* ── 14. Back to top button ── */
+    body.dark-mode .back-to-top{background:#2F80C9!important;color:#ffffff!important}
+
+    /* ── 15. CV template whitelist reinforced ── */
+    body.dark-mode .cv-sheet,
+    body.dark-mode .a4-page,
+    body.dark-mode .tpl-preview-inner,
+    body.dark-mode .cv-new,
+    body.dark-mode #cv-container{background:#ffffff!important;color:initial!important}
+
+    /* DARK MODE NOTICE MODAL CONSISTENCY FIX - CSS ONLY */
+    body.dark-mode .global-notice{
+      background:#ffffff!important;
+      color:#0B1F3A!important;
+      border:2px solid #2563A6!important;
+      box-shadow:0 24px 70px rgba(7,17,31,.35)!important;
+      padding:26px!important;
+    }
+    body.dark-mode .global-notice-title{
+      display:block!important;
+      color:#0B1F3A!important;
+      font-size:18px!important;
+      font-weight:900!important;
+      margin-bottom:8px!important;
+    }
+    body.dark-mode .global-notice-message{
+      color:#475569!important;
+      font-size:14px!important;
+      line-height:1.65!important;
+      margin-bottom:22px!important;
+    }
+    body.dark-mode .global-notice-close{
+      width:100%!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      background:#0B1F3A!important;
+      color:#ffffff!important;
+      border:none!important;
+      padding:12px 18px!important;
+      font-size:14px!important;
+      font-weight:900!important;
+      cursor:pointer!important;
+      font-family:inherit!important;
+      text-align:center!important;
+    }
+    body.dark-mode .global-notice-close:hover{
+      background:#2563A6!important;
+      color:#ffffff!important;
+    }
+    body.dark-mode .global-notice-backdrop{
+      background:rgba(7,17,31,.65)!important;
+    }
+
+    /* ── PAYMENT POLICY NOTE ── */
+    .payment-policy-note{
+      font-size:11px;font-weight:600;color:#64748B;
+      margin-top:10px;line-height:1.6;text-align:center;
+    }
+    .payment-policy-note a{color:#2563A6;text-decoration:underline}
+    .payment-policy-note a:hover{color:#1E4E8C}
+    body.dark-mode .payment-policy-note{color:#AAB7C8!important}
+    body.dark-mode .payment-policy-note a{color:#2F80C9!important}
+    body.dark-mode .payment-policy-note a:hover{color:#EAF3FB!important}
 </style>
 <body>
 <!-- GlobalCV.pro rebrand applied: corporate blue/navy palette, sharp rectangular design, no rounded template styling. -->
@@ -1308,6 +1649,7 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
 <div class="topbar-inner">
 <a aria-label="GlobalCV.pro Home" class="topbar-logo" href="#" onclick="goTo(1);return false;"><img src="main-logo.svg" alt="GlobalCV.pro logo"><span class="topbar-brand-line">Build a professional resume in minutes.</span></a>
 <div class="topbar-spacer"></div>
+<button type="button" class="theme-toggle" onclick="toggleTheme()" id="themeToggle">Dark Mode</button>
 </div>
 </header>
 <!-- ── GLOBALCVPRO LANDING UX SECTIONS ── -->
@@ -1893,6 +2235,8 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
        id="pay-download-btn" is used by GLOBALCV_CONFIG / handleCheckout() logic.
        href is set dynamically by GLOBALCV_CONFIG.LEMON_CHECKOUT_URL when payment is enabled. -->
   <a href="https://globalcvpro.lemonsqueezy.com/checkout/buy/4c0cb248-e836-4605-b028-1466a43d8907" class="lemonsqueezy-button demo-paid-btn" id="pay-download-btn" onclick="handleCheckout();return false;" style="display:block;text-align:center;text-decoration:none">Pay $1 &amp; Download PDF</a>
+
+  <p class="payment-policy-note">By continuing to payment, you agree to our <a href="terms.html" target="_blank">Terms of Service</a>, <a href="refund-policy.html" target="_blank">Refund Policy</a>, and <a href="privacy-policy.html" target="_blank">Privacy Policy</a>.</p>
 
   <!-- ── TRUST INDICATORS ── -->
   <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:18px;font-size:12px;font-weight:700;color:#6b7a94;flex-wrap:wrap">
@@ -4561,6 +4905,7 @@ renderTemplates();
 selectTpl(0);
 updateStickyNav();
 handlePaymentReturn(); // Check if user returned from Lemon Squeezy checkout
+initTheme();           // Restore saved light/dark preference
 
 // Suppress beforeunload warning when any LS checkout button is clicked directly
 document.querySelectorAll('.lemonsqueezy-button').forEach(function(btn){
@@ -5350,15 +5695,14 @@ window.addEventListener('beforeunload',function(e){
 <div style="flex: 1; min-width: 250px;">
 <h3 style="color: #ffffff; font-size: 16px; margin-bottom: 10px; font-weight: 600;">Legal</h3>
 <ul style="list-style: none; padding: 0; margin: 0;">
-<li style="margin-bottom: 8px;"><a href="terms.html" style="color: #cbd5e1; text-decoration: none;" target="_blank">Terms &amp; Conditions</a></li>
-<li style="margin-bottom: 8px;"><a href="privacy.html" style="color: #cbd5e1; text-decoration: none;" target="_blank">Privacy Policy</a></li>
-<li style="margin-bottom: 8px;"><a href="refund.html" style="color: #cbd5e1; text-decoration: none;" target="_blank">Refund Policy</a></li>
+<li style="margin-bottom: 8px;"><a href="terms.html" style="color: #cbd5e1; text-decoration: none;" target="_blank">Terms of Service</a></li>
+<li style="margin-bottom: 8px;"><a href="privacy-policy.html" style="color: #cbd5e1; text-decoration: none;" target="_blank">Privacy Policy</a></li>
+<li style="margin-bottom: 8px;"><a href="refund-policy.html" style="color: #cbd5e1; text-decoration: none;" target="_blank">Refund Policy</a></li>
 </ul>
 </div>
 <div style="flex: 1; min-width: 250px;">
 <h3 style="color: #ffffff; font-size: 16px; margin-bottom: 10px; font-weight: 600;">Support</h3>
-<p style="margin-bottom: 8px;">Email: <a href="mailto:support@globalcv.com" style="color: #2F80C9; text-decoration: none;">support@globalcv.com</a></p>
-<p>Support: <a href="mailto:support@globalcv.pro" style="color: #2F80C9; text-decoration: none;" target="_blank">support@globalcv.pro</a></p>
+<p style="margin-bottom: 8px;">Email: <a href="mailto:support@globalcv.pro" style="color: #2F80C9; text-decoration: none;">support@globalcv.pro</a></p>
 </div>
 </div>
 </footer>
@@ -5439,6 +5783,28 @@ function hideNotice() {
   const backdrop = document.getElementById('globalNoticeBackdrop');
   if (notice)   notice.classList.remove('visible');
   if (backdrop) backdrop.classList.remove('visible');
+}
+
+// ── DARK MODE ──────────────────────────────────────────────────────────────
+function applyTheme(theme) {
+  try {
+    const isDark = theme === 'dark';
+    document.body.classList.toggle('dark-mode', isDark);
+    localStorage.setItem('globalcv_theme', isDark ? 'dark' : 'light');
+    const toggle = document.getElementById('themeToggle');
+    if (toggle) toggle.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+  } catch(e) { /* localStorage unavailable — fail silently */ }
+}
+
+function toggleTheme() {
+  applyTheme(document.body.classList.contains('dark-mode') ? 'light' : 'dark');
+}
+
+function initTheme() {
+  try {
+    const saved = localStorage.getItem('globalcv_theme') || 'light';
+    applyTheme(saved);
+  } catch(e) { applyTheme('light'); }
 }
 
 // Close on Escape key — does not interfere with other modals because it only
