@@ -1780,7 +1780,7 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
 <h1>Create a professional resume in minutes.</h1>
 <p>Choose a modern template, customize your details, preview for free, and download a clean PDF for only $1.</p>
 <div class="landing-cta-row">
-<button class="landing-primary-btn" onclick="document.querySelector('.main')?.scrollIntoView({behavior:'smooth'});">Create My Resume</button>
+<button class="landing-primary-btn" onclick="trackEvent('click_create_resume',{location:'homepage'});document.querySelector('.main')?.scrollIntoView({behavior:'smooth'});">Create My Resume</button>
 <div class="landing-secondary-note">No account required. No watermark.</div>
 </div>
 <div class="landing-stat-row">
@@ -1850,7 +1850,7 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
 </div>
 </div>
 <div class="landing-card price-card" id="price-section">
-<div><h2>Clear price: only $1</h2><p>Build and preview your resume for free. Pay only when you are ready to download a professional PDF with no watermark.</p><div class="landing-cta-row"><button class="landing-primary-btn" onclick="document.querySelector('.main')?.scrollIntoView({behavior:'smooth'});" style="background:#fff;color:#1B2E5E;">Create My Resume Now</button></div></div>
+<div><h2>Clear price: only $1</h2><p>Build and preview your resume for free. Pay only when you are ready to download a professional PDF with no watermark.</p><div class="landing-cta-row"><button class="landing-primary-btn" onclick="trackEvent('click_create_resume',{location:'homepage'});document.querySelector('.main')?.scrollIntoView({behavior:'smooth'});" style="background:#fff;color:#1B2E5E;">Create My Resume Now</button></div></div>
 <div class="price-badge"><span>ONLY</span><b>$1</b><span style="font-size:10px;font-weight:800;letter-spacing:.08em;color:#2563A6;margin-top:5px;text-transform:uppercase">PDF DOWNLOAD</span></div>
 </div>
 </section>
@@ -2595,6 +2595,10 @@ function goTo(n){
   updateBackToTop();
   updateStickyNav();
   scrollToStepTop(n);
+
+  // GA4: track which step the user navigated to
+  var stepNames = {1:"fill_details", 2:"choose_template", 3:"preview_resume", 4:"pay", 5:"download"};
+  trackEvent("resume_step_view", {step_number: n, step_name: stepNames[n] || "unknown"});
 }
 function updatePaymentScreen(){
   const tname=TEMPLATES[selectedTpl]?.n||'Template';
@@ -4426,8 +4430,12 @@ function selectTpl(i){
   selectedTpl=i;
   document.querySelectorAll(".tpl-card").forEach((c,j)=>c.classList.toggle("selected",j===i));
   const tname=TEMPLATES[i]?.n||'Template';
+  const tid=TEMPLATES[i]?.id||('t'+(i+1));
   const el=document.getElementById("por-tpl-val");if(el)el.textContent=tname;
   const el2=document.getElementById("dl-tpl");if(el2)el2.textContent=tname;
+
+  // GA4: track template selection
+  trackEvent("select_template", {template_id: tid, template_name: tname});
 }
 
 /* ── MODAL ── */
@@ -4885,6 +4893,14 @@ const GLOBALCV_CONFIG = {
   DEV_PAYMENT_BYPASS: false
 };
 
+// ── GA4 EVENT TRACKING HELPER ─────────────────────────────────────────────────
+// Safely calls gtag() only if GA4 is loaded. All tracking calls use this wrapper.
+function trackEvent(eventName, params) {
+  if (typeof gtag === "function") {
+    gtag("event", eventName, params || {});
+  }
+}
+
 // Client reference ID — generated once per browser, persisted in localStorage.
 function getClientReferenceId() {
   let id = localStorage.getItem('globalcv_client_ref');
@@ -4928,6 +4944,8 @@ async function handleCheckout() {
       GLOBALCV_CONFIG.LEMON_CHECKOUT_URL +
       separator + 'checkout[custom][client_reference_id]=' + encodeURIComponent(clientReferenceId);
     console.log("Checkout URL:", checkoutUrl);
+    // GA4: track payment button click before redirect
+    trackEvent("click_pay", {payment_provider: "lemon_squeezy", price: 1, currency: "USD"});
     isGoingToCheckout = true;
     window.location.href = checkoutUrl;
     return;
@@ -5019,6 +5037,9 @@ function handlePaymentReturn() {
 
   if (!paymentSuccess) return;
 
+  // GA4: track that user returned from checkout with payment success
+  trackEvent("payment_success_return", {payment_provider: "lemon_squeezy"});
+
   if (!GLOBALCV_CONFIG.BACKEND_URL) {
     // TEMPORARY: Backend not configured yet. Unlock download based on URL param alone.
     // TODO: Replace with backend webhook verification once Render is deployed.
@@ -5040,6 +5061,8 @@ function handlePaymentReturn() {
 // Elements marked data-export-hide="true" are hidden by print CSS.
 // Website logo, navigation, buttons, payment cards, and badges are excluded.
 function downloadPDF() {
+  // GA4: track PDF download via print flow
+  trackEvent("download_pdf", {format: "pdf"});
   window.print();
 }
 
@@ -5883,6 +5906,8 @@ window.addEventListener('beforeunload',function(e){
     };
 
     // 5. Generate, save, and restore the screen
+    // GA4: track PDF download via html2pdf flow
+    trackEvent("download_pdf", {format: "pdf"});
     html2pdf().set(opt).from(element).save().then(() => {
       if (payButton) payButton.style.display = 'block';
       watermarks.forEach(wm => wm.style.display = 'block');
