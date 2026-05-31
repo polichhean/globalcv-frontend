@@ -378,6 +378,20 @@
     /* Reset Quill-generated tags inside CV preview so they don't add default margins */
     .tpl-preview-inner p,.tpl-preview-inner ul,.tpl-preview-inner ol{margin:0;padding:0}
     .tpl-preview-inner li{margin:0;padding:0;list-style:none}
+    /* ── EXPERIENCE: plain textarea for Key Responsibilities / Key Achievements ──
+       Replaces the Quill editor approach; always visible, no external dependency. */
+    .exp-resp,.exp-ach{
+      width:100%;min-height:90px;padding:10px 14px;
+      border:1.5px solid #cddcec;border-radius:0;
+      background:#f8fbff;color:#0B1F3A;
+      font-family:inherit;font-size:14px;line-height:1.6;
+      resize:vertical;box-sizing:border-box;display:block;
+      transition:border-color .15s,box-shadow .15s;
+    }
+    .exp-resp:focus,.exp-ach:focus{
+      border-color:#2196D3;box-shadow:0 0 0 4px #2196D318;background:#fff;outline:none;
+    }
+    .exp-resp::placeholder,.exp-ach::placeholder{color:#9ca3af;font-style:normal;}
 
 
     .field label{color:#1B2E5E;font-weight:700;}
@@ -1583,6 +1597,14 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
     body.dark-mode .quill-wrapper .ql-container.ql-snow,
     body.dark-mode .quill-wrapper .ql-editor{background:#F8FAFC;color:#0B1F3A}
     body.dark-mode .quill-wrapper .ql-editor.ql-blank::before{color:#64748B!important}
+    /* 4b — Experience plain textareas dark mode */
+    body.dark-mode .exp-resp,body.dark-mode .exp-ach{
+      background:#F8FAFC!important;border-color:#CBD5E1!important;color:#0B1F3A!important;
+    }
+    body.dark-mode .exp-resp::placeholder,body.dark-mode .exp-ach::placeholder{color:#64748B!important;}
+    body.dark-mode .exp-resp:focus,body.dark-mode .exp-ach:focus{
+      border-color:#2563A6!important;background:#ffffff!important;
+    }
 
     /* DARK MODE GLOBAL READABILITY AUDIT FIXES - CSS ONLY */
 
@@ -2138,14 +2160,12 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
 <label style="margin:0;font-weight:600">Currently Working Here</label>
 </div>
 <div class="field full">
-<label>Key Responsibilities</label>
-<div class="quill-wrapper"><div class="exp-resp-editor" data-placeholder="Describe your key responsibilities using clear, action-oriented bullet points."></div></div>
-<textarea class="exp-resp" style="display:none"></textarea>
+<label>Key Responsibilities <span style="font-weight:400;font-size:12px;color:#64748b">— one bullet per line</span></label>
+<textarea class="exp-resp" rows="4" placeholder="e.g., Managed monthly marketing campaigns across digital channels&#10;Led a team of 5 marketing specialists&#10;Developed and executed annual content strategy"></textarea>
 </div>
 <div class="field full">
-<label>Key Achievements</label>
-<div class="quill-wrapper"><div class="exp-ach-editor" data-placeholder="Add measurable achievements, results, awards, or business impact."></div></div>
-<textarea class="exp-ach" style="display:none"></textarea>
+<label>Key Achievements <span style="font-weight:400;font-size:12px;color:#64748b">— one bullet per line</span></label>
+<textarea class="exp-ach" rows="4" placeholder="e.g., Increased qualified leads by 35% within 3 months&#10;Reduced campaign costs by 20% through optimization&#10;Launched 3 successful product campaigns"></textarea>
 </div>
 </div>
 <!-- No delete btn on first item -->
@@ -2765,8 +2785,8 @@ function buildData(){
     from:el.querySelector('.exp-from')?.value||'',
     to:el.querySelector('.exp-to')?.value||'',
     current:el.querySelector('.exp-current')?.checked||false,
-    resp:quillHTMLtoLines((el.querySelector('.exp-resp-editor')?._quill?.root.innerHTML)||el.querySelector('.exp-resp')?.value||''),
-    ach:quillHTMLtoLines((el.querySelector('.exp-ach-editor')?._quill?.root.innerHTML)||el.querySelector('.exp-ach')?.value||'')
+    resp:(el.querySelector('.exp-resp')?.value||'').trim(),
+    ach:(el.querySelector('.exp-ach')?.value||'').trim()
   })).filter(e=>e.role||e.company);
 
   const awardItems = Array.from(document.querySelectorAll('.award-item')).map(el=>({
@@ -4851,16 +4871,12 @@ function addExperience(){
       <input type="checkbox" class="exp-current" style="width:auto;height:auto" onchange="toggleCurrentJob(this)"/>
       <label style="margin:0;font-weight:600">Currently Working Here</label></div>
     <div class="field full">
-      <label>Key Responsibilities</label>
-      <div class="quill-wrapper"><div class="exp-resp-editor"></div></div>
-      <textarea class="exp-resp" style="display:none"></textarea></div>
+      <label>Key Responsibilities <span style="font-weight:400;font-size:12px;color:#64748b">— one bullet per line</span></label>
+      <textarea class="exp-resp" rows="4" placeholder="e.g., Managed monthly marketing campaigns across digital channels&#10;Led a team of 5 marketing specialists&#10;Developed and executed annual content strategy"></textarea></div>
     <div class="field full">
-      <label>Key Achievements</label>
-      <div class="quill-wrapper"><div class="exp-ach-editor"></div></div>
-      <textarea class="exp-ach" style="display:none"></textarea></div>
+      <label>Key Achievements <span style="font-weight:400;font-size:12px;color:#64748b">— one bullet per line</span></label>
+      <textarea class="exp-ach" rows="4" placeholder="e.g., Increased qualified leads by 35% within 3 months&#10;Reduced campaign costs by 20% through optimization&#10;Launched 3 successful product campaigns"></textarea></div>
     </div>`);
-  const items=document.querySelectorAll('.exp-item');
-  initExpQuills(items[items.length-1]);
 }
 
 function addProject(){
@@ -5307,10 +5323,10 @@ function fillSampleData(){
       el.querySelector('.exp-from').value=d.from;
       if(d.to)el.querySelector('.exp-to').value=d.to;
       if(d.current){const cb=el.querySelector('.exp-current');if(cb){cb.checked=true;const toEl=el.querySelector('.exp-to');if(toEl)toEl.disabled=true;}}
-      const rDiv=el.querySelector('.exp-resp-editor');
-      if(rDiv?._quill&&d.resp)rDiv._quill.clipboard.dangerouslyPasteHTML(linesToQuillHTML(d.resp));
-      const aDiv=el.querySelector('.exp-ach-editor');
-      if(aDiv?._quill&&d.ach)aDiv._quill.clipboard.dangerouslyPasteHTML(linesToQuillHTML(d.ach));
+      const rTA=el.querySelector('.exp-resp');
+      if(rTA&&d.resp) rTA.value=d.resp;
+      const aTA=el.querySelector('.exp-ach');
+      if(aTA&&d.ach)  aTA.value=d.ach;
     });
     refreshListActions('expList','exp-item');
   }
@@ -5479,10 +5495,11 @@ function loadFromStorage(){
         if(indCust){indCust.value=d.industryCustom||'';indCust.style.display=d.industry==='Other (type below)'?'block':'none';}
         const cb=el.querySelector('.exp-current');
         if(cb){cb.checked=!!d.current;if(d.current){const toEl=el.querySelector('.exp-to');if(toEl)toEl.disabled=true;}}
-        const respDiv=el.querySelector('.exp-resp-editor');
-        if(respDiv?._quill&&d.resp)respDiv._quill.clipboard.dangerouslyPasteHTML(linesToQuillHTML(d.resp));
-        const achDiv=el.querySelector('.exp-ach-editor');
-        if(achDiv?._quill&&d.ach)achDiv._quill.clipboard.dangerouslyPasteHTML(linesToQuillHTML(d.ach));
+        // Restore resp/ach — convert Quill HTML (legacy localStorage) to plain text if needed
+        const respTA=el.querySelector('.exp-resp');
+        if(respTA&&d.resp) respTA.value=quillHTMLtoLines(d.resp)||d.resp;
+        const achTA=el.querySelector('.exp-ach');
+        if(achTA&&d.ach)  achTA.value=quillHTMLtoLines(d.ach)||d.ach;
       });
     }
   }
@@ -5962,6 +5979,10 @@ window.addEventListener('beforeunload',function(e){
     }
 
     // ── 3. Render the selected resume into the export container ───────────────
+    const pdfData = buildData();
+    console.log("PDF export data:", pdfData);
+    console.log("Work experience:", pdfData.expItems);
+    console.log("Selected template:", selectedTpl);
     exportArea.innerHTML = buildFullHTML(tpl);
     injectPhotos(exportArea);
     console.log("exportArea text length after render:", exportArea.innerText.trim().length);
