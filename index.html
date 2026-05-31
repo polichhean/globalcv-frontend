@@ -889,6 +889,20 @@
     .cv-t17 .avatar{position:absolute;left:36px;top:16px;width:135px;height:135px;border:4px solid #222;background:#e6e9ee;background-size:cover;background-position:center;z-index:2}.cv-t17 .left{background:#eeeef0;margin-top:170px;margin-left:0;padding:32px 26px}.cv-t17 .right{padding:165px 46px 30px}.cv-t17 .t-section h3,.cv-t17 .t-line-head{color:#2eb9bd}.cv-t17 .t-section h3{display:flex;align-items:center;gap:8px}.cv-t17 .t-section h3:before{content:"";width:8px;height:26px;background:#2eb9bd;}.cv-t17 .t-item{border-left:2px solid #2eb9bd;padding-left:18px;position:relative}.cv-t17 .t-item:before{content:"";position:absolute;left:-5px;top:4px;width:8px;height:8px;background:#2eb9bd}.cv-t17 .t-bar i{background:#2eb9bd}
     /* ── PRINT ── */
     .print-area{display:none}
+    /* ── PDF EXPORT CONTAINER ──
+       Positioned far off-screen but NOT display:none.
+       html2canvas requires the element to be visible/rendered in the layout;
+       display:none produces a blank PDF. position:fixed + left:-99999px keeps
+       it out of view while remaining fully renderable. */
+    #pdfExportArea{
+      position:fixed;
+      left:-99999px;
+      top:0;
+      width:210mm;
+      background:#ffffff;
+      z-index:-1;
+      overflow:visible;
+    }
     @media print{
       @page{size:A4;margin:0}
       *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
@@ -2439,7 +2453,7 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
 </div>
 </div>
 <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-<button class="btn success lg" id="dl-btn" onclick="downloadPDF()">Download Resume (PDF)</button>
+<button class="btn success lg" id="dl-btn" onclick="generateCleanPDF()">Download Resume (PDF)</button>
 <button class="btn light lg" id="dl-new" onclick="goTo(1)">+ Create Another CV</button>
 <button class="btn ghost lg" id="dl-home" onclick="goTo(1)">Back to Home</button>
 </div>
@@ -2460,8 +2474,10 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
 </div>
 </div>
 </div>
-<!-- ── PRINT AREA ── -->
+<!-- ── PRINT AREA (browser print / @media print only) ── -->
 <div class="print-area" id="printArea"></div>
+<!-- ── PDF EXPORT AREA (html2pdf target — off-screen but NOT display:none) ── -->
+<div id="pdfExportArea"></div>
 <!-- ── BACK TO TOP ── -->
 <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
 <!-- ── STICKY NAV ── -->
@@ -5921,33 +5937,68 @@ window.addEventListener('beforeunload',function(e){
   });
 
   function generateCleanPDF() {
-    // 1. Target the exact CV template area
-    const element = document.getElementById('printArea');
-    
-    // 2. Temporarily hide the payment button so it doesn't print
-    const payButton = document.getElementById('pay-download-btn');
-    if (payButton) payButton.style.display = 'none';
+    console.log("PDF export started");
 
-    // 3. Strictly exclude all platform logos or watermarks
-    const watermarks = document.querySelectorAll('.watermark, .logo-badge');
-    watermarks.forEach(wm => wm.style.display = 'none');
+    // ── 1. Get the selected template ──────────────────────────────────────────
+    const tpl = TEMPLATES[selectedTpl];
+    if (!tpl) {
+      console.warn("generateCleanPDF: no template selected (selectedTpl:", selectedTpl, ")");
+      showNotice("Your resume preview is not ready yet. Please go back, preview your resume, and try downloading again.", "warning");
+      return;
+    }
 
-    // 4. PDF Quality Settings (4K Crispness)
+    // ── 2. Target the off-screen export container ─────────────────────────────
+    // #pdfExportArea is position:fixed; left:-99999px — visible to html2canvas.
+    // #printArea is display:none (screen CSS) so html2canvas would produce blank.
+    const exportArea = document.getElementById('pdfExportArea');
+    const printArea  = document.getElementById('printArea'); // kept for @media print
+    console.log("printArea exists:", !!printArea);
+    console.log("exportArea exists:", !!exportArea);
+
+    if (!exportArea) {
+      console.warn("generateCleanPDF: #pdfExportArea not found");
+      showNotice("Your resume preview is not ready yet. Please go back, preview your resume, and try downloading again.", "warning");
+      return;
+    }
+
+    // ── 3. Render the selected template into the export container ─────────────
+    console.log("exportArea child count BEFORE render:", exportArea.children.length);
+    console.log("exportArea text length BEFORE render:", exportArea.innerText.trim().length);
+
+    exportArea.innerHTML = buildFullHTML(tpl);
+    injectPhotos(exportArea);
+
+    console.log("exportArea child count AFTER render:", exportArea.children.length);
+    console.log("exportArea text length AFTER render:", exportArea.innerText.trim().length);
+
+    // ── 4. Safety check — abort if template rendered no content ───────────────
+    if (exportArea.children.length === 0 && exportArea.innerText.trim().length === 0) {
+      console.warn("generateCleanPDF: export area still empty after render — aborting");
+      exportArea.innerHTML = '';
+      showNotice("Your resume preview is not ready yet. Please go back, preview your resume, and try downloading again.", "warning");
+      return;
+    }
+
+    // ── 5. PDF quality settings ───────────────────────────────────────────────
     const opt = {
-      margin:       0,
-      filename:     'Professional_CV_GlobalCV.pdf',
-      image:        { type: 'jpeg', quality: 1.0 },
-      html2canvas:  { scale: 2, useCORS: true },
-      jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+      margin:      0,
+      filename:    'Professional_CV_GlobalCV.pdf',
+      image:       { type: 'jpeg', quality: 1.0 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF:       { unit: 'in', format: 'a4', orientation: 'portrait' }
     };
 
-    // 5. Generate, save, and restore the screen
-    // GA4: track PDF download via html2pdf flow
-    trackEvent("download_pdf", {format: "pdf"});
-    html2pdf().set(opt).from(element).save().then(() => {
-      if (payButton) payButton.style.display = 'block';
-      watermarks.forEach(wm => wm.style.display = 'block');
-    });
+    // ── 6. GA4: track download (content confirmed non-empty) ──────────────────
+    trackEvent("download_pdf", { format: "pdf" });
+
+    // ── 7. Short delay so DOM settles, then export ────────────────────────────
+    setTimeout(function() {
+      html2pdf().set(opt).from(exportArea).save().then(function() {
+        // Clear the export area after the PDF is saved
+        exportArea.innerHTML = '';
+        console.log("PDF export complete — export area cleared");
+      });
+    }, 300);
   }
 
 /* ── GLOBAL NOTICE ─────────────────────────────────────────────────────────── */
