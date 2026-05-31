@@ -40,7 +40,7 @@
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="favicon.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
+  <script src="https://assets.lemonsqueezy.com/lemon.js" defer></script>
 
 <!-- Structured Data: SoftwareApplication -->
 <script type="application/ld+json">
@@ -2377,7 +2377,7 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
        class="lemonsqueezy-button" activates the Lemon Squeezy overlay when LS JS is loaded.
        id="pay-download-btn" is used by GLOBALCV_CONFIG / handleCheckout() logic.
        href is set dynamically by GLOBALCV_CONFIG.LEMON_CHECKOUT_URL when payment is enabled. -->
-  <a href="https://globalcvpro.lemonsqueezy.com/checkout/buy/4c0cb248-e836-4605-b028-1466a43d8907" class="lemonsqueezy-button demo-paid-btn" id="pay-download-btn" onclick="handleCheckout();return false;" style="display:block;text-align:center;text-decoration:none">Pay $1 &amp; Download PDF</a>
+  <a href="https://globalcvpro.lemonsqueezy.com/checkout/buy/31501807-5b99-4678-a14a-60a7a215e4e0?embed=1" class="lemonsqueezy-button demo-paid-btn" id="pay-download-btn" onclick="handleCheckout();return false;" style="display:block;text-align:center;text-decoration:none">Pay $1 &amp; Download PDF</a>
 
   <p class="payment-policy-note">By continuing to payment, you agree to our <a href="terms.html" target="_blank">Terms of Service</a>, <a href="refund-policy.html" target="_blank">Refund Policy</a>, and <a href="privacy-policy.html" target="_blank">Privacy Policy</a>.</p>
 
@@ -4881,7 +4881,7 @@ const GLOBALCV_CONFIG = {
 
   // STEP 2: After Lemon Squeezy approval, paste your checkout URL here.
   // Example: "https://globalcv.lemonsqueezy.com/buy/xxxxxxxx"
-  LEMON_CHECKOUT_URL: "https://globalcvpro.lemonsqueezy.com/checkout/buy/4c0cb248-e836-4605-b028-1466a43d8907",
+  LEMON_CHECKOUT_URL: "https://globalcvpro.lemonsqueezy.com/checkout/buy/31501807-5b99-4678-a14a-60a7a215e4e0?embed=1",
 
   // STEP 3: Set this as your return URL in Lemon Squeezy dashboard → Store → Checkout Settings.
   // Example: "https://globalcv.pro/?payment=success"
@@ -4944,10 +4944,18 @@ async function handleCheckout() {
       GLOBALCV_CONFIG.LEMON_CHECKOUT_URL +
       separator + 'checkout[custom][client_reference_id]=' + encodeURIComponent(clientReferenceId);
     console.log("Checkout URL:", checkoutUrl);
-    // GA4: track payment button click before redirect
+    // GA4: track payment button click before checkout opens
     trackEvent("click_pay", {payment_provider: "lemon_squeezy", price: 1, currency: "USD"});
-    isGoingToCheckout = true;
-    window.location.href = checkoutUrl;
+    // Update button href dynamically so the overlay carries the client_reference_id
+    const payBtn = document.getElementById('pay-download-btn');
+    if (payBtn) payBtn.setAttribute('href', checkoutUrl);
+    // Open Lemon Squeezy overlay; fall back to full-page redirect if LS JS is not ready
+    if (window.LemonSqueezy && window.LemonSqueezy.Url && typeof window.LemonSqueezy.Url.Open === 'function') {
+      window.LemonSqueezy.Url.Open(checkoutUrl);
+    } else {
+      isGoingToCheckout = true;
+      window.location.href = checkoutUrl;
+    }
     return;
   }
 
@@ -5873,16 +5881,44 @@ window.addEventListener('beforeunload',function(e){
 </div>
 </footer>
 <script>
-  // Setup Lemon Squeezy to listen for successful payment
+  // ── LEMON SQUEEZY OVERLAY EVENT HANDLER ──────────────────────────────────────
+  // LS JS (loaded with defer) calls window.createLemonSqueezy() automatically when
+  // it is ready. A _lsSetupDone guard prevents double-registration if the
+  // DOMContentLoaded safety-net below also fires.
+  window._lsSetupDone = false;
   window.createLemonSqueezy = function() {
+    if (window._lsSetupDone) return;
+    window._lsSetupDone = true;
     LemonSqueezy.Setup({
       eventHandler: function(event) {
         if (event.event === 'Checkout.Success') {
+          // 1. Unlock the download step so the user can proceed
+          paymentUnlocked = true;
+          goTo(4);
+          // 2. Auto-generate the PDF for convenience
           generateCleanPDF();
         }
       }
     });
   };
+
+  // ── SAFETY-NET INIT ───────────────────────────────────────────────────────────
+  // LS JS (defer) normally calls createLemonSqueezy() before DOMContentLoaded.
+  // This listener covers the edge case where LS JS loads late or is delayed.
+  // The _lsSetupDone flag ensures LemonSqueezy.Setup() is never called twice.
+  document.addEventListener("DOMContentLoaded", function() {
+    if (window.LemonSqueezy && typeof window.createLemonSqueezy === "function") {
+      // LS JS already ready — call now (guard prevents double-setup)
+      window.createLemonSqueezy();
+    } else {
+      // LS JS not yet available — retry once after a short delay
+      setTimeout(function() {
+        if (window.LemonSqueezy && typeof window.createLemonSqueezy === "function") {
+          window.createLemonSqueezy();
+        }
+      }, 1500);
+    }
+  });
 
   function generateCleanPDF() {
     // 1. Target the exact CV template area
