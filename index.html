@@ -890,18 +890,27 @@
     /* ── PRINT ── */
     .print-area{display:none}
     /* ── PDF EXPORT CONTAINER ──
-       Positioned far off-screen but NOT display:none.
-       html2canvas requires the element to be visible/rendered in the layout;
-       display:none produces a blank PDF. position:fixed + left:-99999px keeps
-       it out of view while remaining fully renderable. */
+       Hidden by default. During export, body.pdf-exporting hides all other UI
+       and makes #pdfExportArea fully visible at position:static so html2canvas
+       captures a real rendered layout (not an off-screen or display:none ghost). */
     #pdfExportArea{
-      position:fixed;
-      left:-99999px;
-      top:0;
-      width:210mm;
-      background:#ffffff;
-      z-index:-1;
-      overflow:visible;
+      display:none;
+    }
+    body.pdf-exporting > *:not(#pdfExportArea){
+      display:none !important;
+    }
+    body.pdf-exporting{
+      background:#ffffff !important;
+    }
+    body.pdf-exporting #pdfExportArea{
+      display:block !important;
+      position:static !important;
+      width:210mm !important;
+      min-height:297mm !important;
+      margin:0 auto !important;
+      background:#ffffff !important;
+      color:#111827 !important;
+      z-index:999999 !important;
     }
     @media print{
       @page{size:A4;margin:0}
@@ -2476,8 +2485,6 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
 </div>
 <!-- ── PRINT AREA (browser print / @media print only) ── -->
 <div class="print-area" id="printArea"></div>
-<!-- ── PDF EXPORT AREA (html2pdf target — off-screen but NOT display:none) ── -->
-<div id="pdfExportArea"></div>
 <!-- ── BACK TO TOP ── -->
 <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
 <!-- ── STICKY NAV ── -->
@@ -5908,11 +5915,9 @@ window.addEventListener('beforeunload',function(e){
     LemonSqueezy.Setup({
       eventHandler: function(event) {
         if (event.event === 'Checkout.Success') {
-          // 1. Unlock the download step so the user can proceed
+          // Unlock the download step — user clicks Download PDF manually
           paymentUnlocked = true;
           goTo(4);
-          // 2. Auto-generate the PDF for convenience
-          generateCleanPDF();
         }
       }
     });
@@ -5941,64 +5946,71 @@ window.addEventListener('beforeunload',function(e){
 
     // ── 1. Get the selected template ──────────────────────────────────────────
     const tpl = TEMPLATES[selectedTpl];
+    console.log("selectedTpl:", selectedTpl);
+    console.log("template exists:", !!tpl);
     if (!tpl) {
-      console.warn("generateCleanPDF: no template selected (selectedTpl:", selectedTpl, ")");
       showNotice("Your resume preview is not ready yet. Please go back, preview your resume, and try downloading again.", "warning");
       return;
     }
 
-    // ── 2. Target the off-screen export container ─────────────────────────────
-    // #pdfExportArea is position:fixed; left:-99999px — visible to html2canvas.
-    // #printArea is display:none (screen CSS) so html2canvas would produce blank.
-    const exportArea = document.getElementById('pdfExportArea');
-    const printArea  = document.getElementById('printArea'); // kept for @media print
-    console.log("printArea exists:", !!printArea);
+    // ── 2. Get the export container ───────────────────────────────────────────
+    const exportArea = document.getElementById("pdfExportArea");
     console.log("exportArea exists:", !!exportArea);
-
     if (!exportArea) {
-      console.warn("generateCleanPDF: #pdfExportArea not found");
       showNotice("Your resume preview is not ready yet. Please go back, preview your resume, and try downloading again.", "warning");
       return;
     }
 
-    // ── 3. Render the selected template into the export container ─────────────
-    console.log("exportArea child count BEFORE render:", exportArea.children.length);
-    console.log("exportArea text length BEFORE render:", exportArea.innerText.trim().length);
-
+    // ── 3. Render the selected resume into the export container ───────────────
     exportArea.innerHTML = buildFullHTML(tpl);
     injectPhotos(exportArea);
+    console.log("exportArea text length after render:", exportArea.innerText.trim().length);
+    console.log("exportArea child count after render:", exportArea.children.length);
 
-    console.log("exportArea child count AFTER render:", exportArea.children.length);
-    console.log("exportArea text length AFTER render:", exportArea.innerText.trim().length);
-
-    // ── 4. Safety check — abort if template rendered no content ───────────────
+    // ── 4. Safety check — abort if render produced no content ─────────────────
     if (exportArea.children.length === 0 && exportArea.innerText.trim().length === 0) {
-      console.warn("generateCleanPDF: export area still empty after render — aborting");
-      exportArea.innerHTML = '';
+      exportArea.innerHTML = "";
       showNotice("Your resume preview is not ready yet. Please go back, preview your resume, and try downloading again.", "warning");
       return;
     }
 
-    // ── 5. PDF quality settings ───────────────────────────────────────────────
-    const opt = {
-      margin:      0,
-      filename:    'Professional_CV_GlobalCV.pdf',
-      image:       { type: 'jpeg', quality: 1.0 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF:       { unit: 'in', format: 'a4', orientation: 'portrait' }
-    };
-
-    // ── 6. GA4: track download (content confirmed non-empty) ──────────────────
+    // ── 5. GA4 tracking (content confirmed non-empty) ─────────────────────────
     trackEvent("download_pdf", { format: "pdf" });
 
-    // ── 7. Short delay so DOM settles, then export ────────────────────────────
-    setTimeout(function() {
-      html2pdf().set(opt).from(exportArea).save().then(function() {
-        // Clear the export area after the PDF is saved
-        exportArea.innerHTML = '';
-        console.log("PDF export complete — export area cleared");
+    // ── 6. PDF quality settings ───────────────────────────────────────────────
+    var opt = {
+      margin:      0,
+      filename:    "Professional_CV_GlobalCV.pdf",
+      image:       { type: "jpeg", quality: 1.0 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF:       { unit: "in", format: "a4", orientation: "portrait" }
+    };
+
+    // ── 7. Export mode ────────────────────────────────────────────────────────
+    // body.pdf-exporting hides all other UI and makes #pdfExportArea fully
+    // visible at position:static so html2canvas captures a real rendered layout.
+    // Two requestAnimationFrame calls ensure the browser has painted the new
+    // layout before html2canvas reads the DOM.
+    document.body.classList.add("pdf-exporting");
+
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        setTimeout(function() {
+          html2pdf().set(opt).from(exportArea).save()
+            .then(function() {
+              document.body.classList.remove("pdf-exporting");
+              exportArea.innerHTML = "";
+              console.log("PDF export complete");
+            })
+            .catch(function(err) {
+              document.body.classList.remove("pdf-exporting");
+              exportArea.innerHTML = "";
+              console.error("PDF export failed:", err);
+              showNotice("PDF export failed. Please try again.", "warning");
+            });
+        }, 300);
       });
-    }, 300);
+    });
   }
 
 /* ── GLOBAL NOTICE ─────────────────────────────────────────────────────────── */
@@ -6082,5 +6094,10 @@ document.addEventListener('keydown', function(e) {
   <div class="global-notice-message" id="globalNoticeMessage"></div>
   <button type="button" class="global-notice-close" onclick="hideNotice()">OK</button>
 </div>
+<!-- ── PDF EXPORT AREA ──
+     Direct child of <body>. Hidden by default (display:none).
+     During export, body.pdf-exporting makes this the only visible element so
+     html2canvas captures a fully rendered A4 layout. Cleared after save. -->
+<div id="pdfExportArea" aria-hidden="true"></div>
 </body>
 </html>
