@@ -5962,16 +5962,15 @@ window.addEventListener('beforeunload',function(e){
     console.log("PDF export started");
 
     // ── 1. Get the selected template ──────────────────────────────────────────
-    const tpl = TEMPLATES[selectedTpl];
-    console.log("selectedTpl:", selectedTpl);
-    console.log("template exists:", !!tpl);
+    var tpl = TEMPLATES[selectedTpl];
+    console.log("selectedTpl:", selectedTpl, "template exists:", !!tpl);
     if (!tpl) {
       showNotice("Your resume preview is not ready yet. Please go back, preview your resume, and try downloading again.", "warning");
       return;
     }
 
     // ── 2. Get the export container ───────────────────────────────────────────
-    const exportArea = document.getElementById("pdfExportArea");
+    var exportArea = document.getElementById("pdfExportArea");
     console.log("exportArea exists:", !!exportArea);
     if (!exportArea) {
       showNotice("Your resume preview is not ready yet. Please go back, preview your resume, and try downloading again.", "warning");
@@ -5979,7 +5978,7 @@ window.addEventListener('beforeunload',function(e){
     }
 
     // ── 3. Render the selected resume into the export container ───────────────
-    const pdfData = buildData();
+    var pdfData = buildData();
     console.log("PDF export data:", pdfData);
     console.log("Work experience:", pdfData.expItems);
     console.log("Selected template:", selectedTpl);
@@ -5999,33 +5998,66 @@ window.addEventListener('beforeunload',function(e){
     trackEvent("download_pdf", { format: "pdf" });
 
     // ── 6. PDF quality settings ───────────────────────────────────────────────
+    // 794px = 210mm at 96 dpi (standard A4 width). 1123px = 297mm.
     var opt = {
       margin:      0,
       filename:    "Professional_CV_GlobalCV.pdf",
       image:       { type: "jpeg", quality: 1.0 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF:       { unit: "in", format: "a4", orientation: "portrait" }
+      html2canvas: {
+        scale:       2,
+        useCORS:     true,
+        allowTaint:  true,   // Prevent SecurityError from cross-origin fonts/images
+        logging:     false,
+        width:       794,
+        windowWidth: 794,
+        // Force the cloned element to be visible inside html2canvas's internal doc
+        onclone: function(clonedDoc) {
+          var el = clonedDoc.getElementById("pdfExportArea");
+          if (el) {
+            el.style.display    = "block";
+            el.style.position   = "static";
+            el.style.width      = "794px";
+            el.style.minHeight  = "1123px";
+            el.style.background = "#ffffff";
+            el.style.overflow   = "visible";
+          }
+        }
+      },
+      jsPDF: { unit: "in", format: "a4", orientation: "portrait" }
     };
 
-    // ── 7. Export mode ────────────────────────────────────────────────────────
-    // body.pdf-exporting hides all other UI and makes #pdfExportArea fully
-    // visible at position:static so html2canvas captures a real rendered layout.
-    // Two requestAnimationFrame calls ensure the browser has painted the new
-    // layout before html2canvas reads the DOM.
+    // ── 7. Make exportArea visible via inline style — more reliable than CSS
+    //      class cascades. position:static keeps it in the normal flow so
+    //      html2canvas computes correct dimensions.
+    exportArea.style.display    = "block";
+    exportArea.style.position   = "static";
+    exportArea.style.width      = "794px";
+    exportArea.style.minHeight  = "1123px";
+    exportArea.style.background = "#ffffff";
+    exportArea.style.overflow   = "visible";
+
+    // Hide all other UI during the brief export window
     document.body.classList.add("pdf-exporting");
 
+    // Cleanup helper — always called after export (success or failure)
+    var cleanupExport = function() {
+      document.body.classList.remove("pdf-exporting");
+      exportArea.style.cssText = "";   // Remove all inline styles
+      exportArea.innerHTML = "";
+    };
+
+    // ── 8. Two rAFs ensure the browser has painted the new layout, then
+    //      a 300ms delay gives fonts/images time to settle before capture.
     requestAnimationFrame(function() {
       requestAnimationFrame(function() {
         setTimeout(function() {
           html2pdf().set(opt).from(exportArea).save()
             .then(function() {
-              document.body.classList.remove("pdf-exporting");
-              exportArea.innerHTML = "";
+              cleanupExport();
               console.log("PDF export complete");
             })
             .catch(function(err) {
-              document.body.classList.remove("pdf-exporting");
-              exportArea.innerHTML = "";
+              cleanupExport();
               console.error("PDF export failed:", err);
               showNotice("PDF export failed. Please try again.", "warning");
             });
