@@ -2507,6 +2507,7 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
 </div>
 <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
 <button class="btn success lg" id="dl-btn" onclick="generateCleanPDF()">Download Resume (PDF)</button>
+<button class="btn light lg" id="dl-print" onclick="openCleanPrintExport()" title="Opens a clean print-ready version — use File › Print › Save as PDF">Open Print Version</button>
 <button class="btn light lg" id="dl-new" onclick="goTo(1)">+ Create Another CV</button>
 <button class="btn ghost lg" id="dl-home" onclick="goTo(1)">Back to Home</button>
 </div>
@@ -4980,6 +4981,22 @@ let paymentInterval;
 let currentTransactionId = null;
 let isGoingToCheckout = false;  // Set true before LS redirect so beforeunload skips the warning
 
+// ── PRE-PAYMENT SNAPSHOT ──────────────────────────────────────────────────────
+// Saves the current resume state + selected template index to dedicated keys
+// so they can be reliably restored after a full-page redirect back from checkout.
+function saveResumeForPayment() {
+  try {
+    const currentData = buildData();
+    localStorage.setItem("globalcv_resume_data",    JSON.stringify(currentData));
+    localStorage.setItem("globalcv_selected_template", String(selectedTpl || 0));
+    localStorage.setItem("globalcv_resume_saved_at",   String(Date.now()));
+    console.log("Resume saved before payment:", currentData);
+    console.log("Selected template saved:", selectedTpl);
+  } catch (e) {
+    console.warn("Could not save resume before payment:", e);
+  }
+}
+
 // ── CHECKOUT HANDLER ──────────────────────────────────────────────────────────
 async function handleCheckout() {
   console.log("Checkout clicked");
@@ -5007,6 +5024,8 @@ async function handleCheckout() {
       GLOBALCV_CONFIG.LEMON_CHECKOUT_URL +
       separator + 'checkout[custom][client_reference_id]=' + encodeURIComponent(clientReferenceId);
     console.log("Checkout URL:", checkoutUrl);
+    // Save resume snapshot so it can be restored after payment return/redirect
+    saveResumeForPayment();
     // GA4: track payment button click before checkout opens
     trackEvent("click_pay", {payment_provider: "lemon_squeezy", price: 1, currency: "USD"});
     // Update button href dynamically so the overlay carries the client_reference_id
@@ -5111,12 +5130,31 @@ function handlePaymentReturn() {
   // GA4: track that user returned from checkout with payment success
   trackEvent("payment_success_return", {payment_provider: "lemon_squeezy"});
 
+  // ── Restore selected template from payment snapshot ──────────────────────
+  // saveResumeForPayment() stores the template index just before checkout.
+  // The form fields are already populated by loadFromStorage() (called before
+  // this function in DOMContentLoaded), so we only need to restore selectedTpl.
+  try {
+    const savedTpl = localStorage.getItem("globalcv_selected_template");
+    if (savedTpl !== null) {
+      const idx = parseInt(savedTpl, 10);
+      if (!isNaN(idx) && idx >= 0) {
+        selectTpl(idx);
+        console.log("Restored selected template:", idx);
+      }
+    }
+  } catch (e) {
+    console.warn("Could not restore template index:", e);
+  }
+
   if (!GLOBALCV_CONFIG.BACKEND_URL) {
     // TEMPORARY: Backend not configured yet. Unlock download based on URL param alone.
     // TODO: Replace with backend webhook verification once Render is deployed.
     console.info("Payment success detected. Backend not configured yet; unlocking download temporarily.");
     paymentUnlocked = true;
     goTo(4);
+    // Extra tick to let any pending DOM updates settle before refreshing the screen
+    setTimeout(function() { updateDownloadScreen(); }, 50);
     return;
   }
 
@@ -5137,13 +5175,63 @@ function downloadPDF() {
   window.print();
 }
 
+// ── PRINT-WINDOW FALLBACK ─────────────────────────────────────────────────────
+// Opens a clean resume-only page in a new tab and triggers the browser print
+// dialog. The user can then choose "Save as PDF". Used as a guaranteed fallback
+// when html2pdf fails, and also exposed as a standalone "Open Print Version" button.
+function openCleanPrintExport() {
+  const tpl  = TEMPLATES[selectedTpl] || TEMPLATES[0];
+  const data = buildData();
+
+  if (!data || !data.name || !data.title) {
+    showNotice("Please complete your name and job title before downloading your resume.", "warning");
+    return;
+  }
+
+  const resumeHTML = buildFullHTML(tpl);
+
+  const printWindow = window.open("", "_blank");
+  if (!printWindow) {
+    showNotice("Please allow pop-ups to export your resume PDF.", "warning");
+    return;
+  }
+
+  // Build a self-contained page: CV HTML + print CSS + auto-print on load
+  printWindow.document.open();
+  printWindow.document.write(
+    '<!DOCTYPE html><html><head>'
+    + '<meta charset="utf-8">'
+    + '<title>Professional CV — GlobalCV.pro</title>'
+    + '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">'
+    + '<style>'
+    + '*{box-sizing:border-box;}'
+    + 'html,body{margin:0;padding:0;background:#ffffff;font-family:Inter,Arial,sans-serif;}'
+    + '@page{size:A4;margin:0;}'
+    + 'body{width:210mm;min-height:297mm;margin:0 auto;background:#ffffff;}'
+    + '.cv-sheet,.cv-new{width:210mm!important;min-height:297mm!important;'
+    +   'background:#ffffff!important;box-shadow:none!important;margin:0!important;'
+    +   'page-break-after:always;}'
+    + '*{box-shadow:none!important;filter:none!important;backdrop-filter:none!important;}'
+    + '.sh-banner,.sh-top,.sh-head,.topband,.strip,.cv-demo-top{'
+    +   'background-image:none!important;}'
+    + '</style>'
+    + '</head><body>'
+    + resumeHTML
+    + '<script>window.onload=function(){setTimeout(function(){window.print();},600);}<\/script>'
+    + '</body></html>'
+  );
+  printWindow.document.close();
+
+  trackEvent("download_pdf", { format: "print_pdf_fallback" });
+}
+
 /* ── INIT ── */
 renderTemplates();
 selectTpl(0);
 updateStickyNav();
-handlePaymentReturn(); // Check if user returned from Lemon Squeezy checkout
-// initTheme() is defined in the second <script> block — call it via DOMContentLoaded
-// so both script blocks have executed before it is invoked (see DOMContentLoaded below)
+// handlePaymentReturn() is now called inside DOMContentLoaded (after loadFromStorage)
+// so form fields are already populated before goTo(4) reads them.
+// initTheme() is defined in the second <script> block — also called via DOMContentLoaded.
 
 // Suppress beforeunload warning when any LS checkout button is clicked directly
 document.querySelectorAll('.lemonsqueezy-button').forEach(function(btn){
@@ -5589,7 +5677,8 @@ document.addEventListener('DOMContentLoaded',function(){
   }
   document.querySelectorAll('.exp-item').forEach(item=>initExpQuills(item));
 
-  // 2. Restore saved data
+  // 2. Restore saved data — must happen BEFORE handlePaymentReturn so that
+  //    form fields are already populated when goTo(4) → updateDownloadScreen() fires.
   loadFromStorage();
 
   // 3. Apply action button logic to all hardcoded first items
@@ -5599,6 +5688,10 @@ document.addEventListener('DOMContentLoaded',function(){
   //    because initTheme() is defined in the second <script> block, which executes
   //    after the first. By the time DOMContentLoaded fires, both blocks have run.
   if (typeof initTheme === 'function') initTheme();
+
+  // 5. Check for ?payment=success return — called HERE (after loadFromStorage) so
+  //    form fields are already populated before the download screen is shown.
+  handlePaymentReturn();
 });
 document.addEventListener('input',function(){
   saveToStorage();
@@ -6144,26 +6237,8 @@ window.addEventListener('beforeunload',function(e){
               console.error("PDF export error name:", err && err.name);
               console.error("PDF export error message:", err && err.message);
               console.error("PDF export stack:", err && err.stack);
-              // Fallback: open the resume HTML in a new window so the user can
-              // File → Print → Save as PDF using the browser's own print dialog.
-              try {
-                var fallbackHTML = '<!DOCTYPE html><html><head>'
-                  + '<meta charset="utf-8">'
-                  + '<style>body{margin:0;padding:0;background:#fff}'
-                  + '@page{size:A4;margin:0}'
-                  + 'body>*{width:210mm;min-height:297mm}'
-                  + '</style>'
-                  + '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">'
-                  + '</head><body>'
-                  + (document.getElementById("pdfExportArea") || {innerHTML:""}).innerHTML
-                  + '<script>window.onload=function(){window.print();}<\/script>'
-                  + '</body></html>';
-                var w = window.open("", "_blank");
-                if (w) { w.document.write(fallbackHTML); w.document.close(); }
-                else {
-                  showNotice("PDF export failed. Please allow pop-ups and try again, or use your browser’s Print option.", "warning");
-                }
-              } catch(fe) {
+              // Fallback: open a clean print window so the user can Save as PDF
+              try { openCleanPrintExport(); } catch(fe) {
                 showNotice("PDF export failed. Please try again.", "warning");
               }
             });
