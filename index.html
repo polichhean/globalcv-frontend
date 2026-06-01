@@ -2506,11 +2506,13 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
 </div>
 </div>
 <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-<button class="btn success lg" id="dl-btn" onclick="generateCleanPDF()">Download Resume (PDF)</button>
-<button class="btn light lg" id="dl-print" onclick="openCleanPrintExport()" title="Opens a clean print-ready version — use File › Print › Save as PDF">Open Print Version</button>
+<button class="btn success lg" id="dl-btn" onclick="openCleanPrintExport()">Save Resume as PDF</button>
 <button class="btn light lg" id="dl-new" onclick="goTo(1)">+ Create Another CV</button>
 <button class="btn ghost lg" id="dl-home" onclick="goTo(1)">Back to Home</button>
 </div>
+<p style="margin-top:12px;font-size:13px;color:var(--muted);text-align:center;line-height:1.5">
+  A print window will open. Choose <strong style="color:var(--text)">"Save as PDF"</strong> as the destination, then click Save.
+</p>
 </div>
 </div>
 </div>
@@ -2562,7 +2564,7 @@ const T = {
     porTemplate:"Template",porLang:"Language",porTotal:"Total",qrTitle:"Scan to Pay",qrSub:"Scan with your supported payment app",
     s3Helper:"Having trouble? Contact GlobalCV.pro support",
     dlTitle:"Payment Confirmed!",dlNameLbl:"Applicant",dlTplLbl:"Template",dlLangLbl:"Language",
-    dlBtn:"Download Resume (PDF)",dlNew:"+ Create Another CV",dlHome:"Back to Home",
+    dlBtn:"Save Resume as PDF",dlNew:"+ Create Another CV",dlHome:"Back to Home",
     modalCancel:"Cancel",modalSelect:"Select This Template →",
     pill1:"Fill Details",pill2:"Choose Template",pill3:"Pay $1",pill4:"Download PDF"
   },
@@ -2576,7 +2578,7 @@ const T = {
     porTemplate:"Template",porLang:"",porTotal:"",qrTitle:"Scan ",qrSub:"Scan ",
     s3Helper:"?  Telegram @globalcv",
     dlTitle:"!",dlNameLbl:"",dlTplLbl:"Template",dlLangLbl:"",
-    dlBtn:" CV (PDF)",dlNew:"+  CV ",dlHome:"",
+    dlBtn:" CV  PDF",dlNew:"+  CV ",dlHome:"",
     modalCancel:"",modalSelect:" Template  →",
     pill1:"",pill2:"Template",pill3:"",pill4:""
   }
@@ -5176,9 +5178,10 @@ function downloadPDF() {
 }
 
 // ── PRINT-WINDOW FALLBACK ─────────────────────────────────────────────────────
-// Opens a clean resume-only page in a new tab and triggers the browser print
-// dialog. The user can then choose "Save as PDF". Used as a guaranteed fallback
-// when html2pdf fails, and also exposed as a standalone "Open Print Version" button.
+// PRIMARY export method: opens a clean resume-only page in a new tab and
+// triggers the browser print dialog. The user chooses "Save as PDF".
+// html2canvas/html2pdf is retained in generateCleanPDF() but is no longer
+// wired to the main download button due to blank-PDF rendering issues.
 function openCleanPrintExport() {
   const tpl  = TEMPLATES[selectedTpl] || TEMPLATES[0];
   const data = buildData();
@@ -5222,7 +5225,7 @@ function openCleanPrintExport() {
   );
   printWindow.document.close();
 
-  trackEvent("download_pdf", { format: "print_pdf_fallback" });
+  trackEvent("download_pdf", { format: "print_save_as_pdf" });
 }
 
 /* ── INIT ── */
