@@ -926,6 +926,30 @@
       color:#111827 !important;
       z-index:999999 !important;
     }
+    /* ── PDF EXPORT — strip CSS properties that break html2canvas ──────────────
+       html2canvas cannot render CSS gradients, transforms, box-shadow, or
+       filter reliably; attempting to do so throws CanvasGradient / addColorStop
+       errors and causes the whole export to fail. These rules neutralise those
+       properties only while body.pdf-exporting is active (< 1 second). */
+    body.pdf-exporting #pdfExportArea *,
+    body.pdf-exporting #pdfExportArea *::before,
+    body.pdf-exporting #pdfExportArea *::after{
+      box-shadow:none !important;
+      filter:none !important;
+      backdrop-filter:none !important;
+      transform:none !important;
+    }
+    /* Replace gradient backgrounds with solid colours */
+    body.pdf-exporting #pdfExportArea .sh-banner,
+    body.pdf-exporting #pdfExportArea .sh-top,
+    body.pdf-exporting #pdfExportArea .sh-head{
+      background-image:none !important;
+      background-color:#0B1F3A !important;
+    }
+    body.pdf-exporting #pdfExportArea .cv-demo-top{
+      background-image:none !important;
+      background-color:#1B2E5E !important;
+    }
     @media print{
       @page{size:A4;margin:0}
       *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
@@ -5118,7 +5142,8 @@ renderTemplates();
 selectTpl(0);
 updateStickyNav();
 handlePaymentReturn(); // Check if user returned from Lemon Squeezy checkout
-initTheme();           // Restore saved light/dark preference
+// initTheme() is defined in the second <script> block — call it via DOMContentLoaded
+// so both script blocks have executed before it is invoked (see DOMContentLoaded below)
 
 // Suppress beforeunload warning when any LS checkout button is clicked directly
 document.querySelectorAll('.lemonsqueezy-button').forEach(function(btn){
@@ -5569,6 +5594,11 @@ document.addEventListener('DOMContentLoaded',function(){
 
   // 3. Apply action button logic to all hardcoded first items
   [['eduList','edu-item'],['expList','exp-item'],['certList','cert-item'],['refList','ref-item']].forEach(([lid,cls])=>refreshListActions(lid,cls));
+
+  // 4. Restore dark mode preference — called here (not in the synchronous INIT block)
+  //    because initTheme() is defined in the second <script> block, which executes
+  //    after the first. By the time DOMContentLoaded fires, both blocks have run.
+  if (typeof initTheme === 'function') initTheme();
 });
 document.addEventListener('input',function(){
   saveToStorage();
@@ -5958,6 +5988,38 @@ window.addEventListener('beforeunload',function(e){
     }
   });
 
+  // Strips CSS properties that cause html2canvas to throw CanvasGradient /
+  // addColorStop errors. Called on the live DOM element before html2pdf runs,
+  // and again inside the onclone callback on html2canvas's internal clone.
+  function sanitizePdfExportArea(root) {
+    if (!root) return;
+    root.querySelectorAll("*").forEach(function(el) {
+      // Remove gradients — html2canvas fails with addColorStop when it tries
+      // to parse and re-draw CSS linear-gradient / radial-gradient values
+      var bg = el.style.backgroundImage
+             || window.getComputedStyle(el).backgroundImage;
+      if (bg && bg !== "none" && bg.includes("gradient")) {
+        el.style.backgroundImage = "none";
+        // Preserve a reasonable solid fallback only if no colour is set
+        if (!el.style.backgroundColor ||
+            el.style.backgroundColor === "" ||
+            el.style.backgroundColor === "transparent") {
+          // Detect dark-ish gradient and replace with nearest solid
+          var isDark = bg.includes("#0") || bg.includes("#1") ||
+                       bg.includes("#2") || bg.includes("navy") ||
+                       bg.includes("0f17") || bg.includes("1B2E");
+          el.style.backgroundColor = isDark ? "#0B1F3A" : "#ffffff";
+        }
+      }
+      el.style.boxShadow      = "none";
+      el.style.filter         = "none";
+      el.style.backdropFilter = "none";
+      if (el.style.transform && el.style.transform !== "none") {
+        el.style.transform = "none";
+      }
+    });
+  }
+
   function generateCleanPDF() {
     console.log("PDF export started");
 
@@ -5984,6 +6046,11 @@ window.addEventListener('beforeunload',function(e){
     console.log("Selected template:", selectedTpl);
     exportArea.innerHTML = buildFullHTML(tpl);
     injectPhotos(exportArea);
+
+    // Strip CSS properties that break html2canvas (gradients → CanvasGradient
+    // addColorStop errors; transforms/shadows → rendering failures).
+    sanitizePdfExportArea(exportArea);
+
     console.log("exportArea text length after render:", exportArea.innerText.trim().length);
     console.log("exportArea child count after render:", exportArea.children.length);
 
@@ -6004,23 +6071,38 @@ window.addEventListener('beforeunload',function(e){
       filename:    "Professional_CV_GlobalCV.pdf",
       image:       { type: "jpeg", quality: 1.0 },
       html2canvas: {
-        scale:       2,
-        useCORS:     true,
-        allowTaint:  true,   // Prevent SecurityError from cross-origin fonts/images
-        logging:     false,
-        width:       794,
-        windowWidth: 794,
-        // Force the cloned element to be visible inside html2canvas's internal doc
+        scale:                   2,
+        useCORS:                 true,
+        allowTaint:              false,          // false avoids canvas-taint SecurityError
+        backgroundColor:         "#ffffff",      // explicit white prevents transparent canvas
+        logging:                 true,           // enable for debugging; disable in production
+        width:                   794,
+        windowWidth:             794,
+        scrollX:                 0,
+        scrollY:                 0,
+        foreignObjectRendering:  false,          // avoids foreignObject SVG issues
         onclone: function(clonedDoc) {
           var el = clonedDoc.getElementById("pdfExportArea");
-          if (el) {
-            el.style.display    = "block";
-            el.style.position   = "static";
-            el.style.width      = "794px";
-            el.style.minHeight  = "1123px";
-            el.style.background = "#ffffff";
-            el.style.overflow   = "visible";
-          }
+          if (!el) return;
+          // Force visibility in html2canvas's internal document clone
+          el.style.display    = "block";
+          el.style.position   = "static";
+          el.style.width      = "794px";
+          el.style.minHeight  = "1123px";
+          el.style.background = "#ffffff";
+          el.style.overflow   = "visible";
+          // Strip gradient/transform/shadow from every child in the clone —
+          // the live DOM was already sanitized but the clone needs it too
+          el.querySelectorAll("*").forEach(function(node) {
+            node.style.boxShadow      = "none";
+            node.style.filter         = "none";
+            node.style.backdropFilter = "none";
+            node.style.transform      = "none";
+            if (node.style.backgroundImage &&
+                node.style.backgroundImage.includes("gradient")) {
+              node.style.backgroundImage = "none";
+            }
+          });
         }
       },
       jsPDF: { unit: "in", format: "a4", orientation: "portrait" }
@@ -6058,8 +6140,32 @@ window.addEventListener('beforeunload',function(e){
             })
             .catch(function(err) {
               cleanupExport();
-              console.error("PDF export failed:", err);
-              showNotice("PDF export failed. Please try again.", "warning");
+              console.error("PDF export failed full error:", err);
+              console.error("PDF export error name:", err && err.name);
+              console.error("PDF export error message:", err && err.message);
+              console.error("PDF export stack:", err && err.stack);
+              // Fallback: open the resume HTML in a new window so the user can
+              // File → Print → Save as PDF using the browser's own print dialog.
+              try {
+                var fallbackHTML = '<!DOCTYPE html><html><head>'
+                  + '<meta charset="utf-8">'
+                  + '<style>body{margin:0;padding:0;background:#fff}'
+                  + '@page{size:A4;margin:0}'
+                  + 'body>*{width:210mm;min-height:297mm}'
+                  + '</style>'
+                  + '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">'
+                  + '</head><body>'
+                  + (document.getElementById("pdfExportArea") || {innerHTML:""}).innerHTML
+                  + '<script>window.onload=function(){window.print();}<\/script>'
+                  + '</body></html>';
+                var w = window.open("", "_blank");
+                if (w) { w.document.write(fallbackHTML); w.document.close(); }
+                else {
+                  showNotice("PDF export failed. Please allow pop-ups and try again, or use your browser’s Print option.", "warning");
+                }
+              } catch(fe) {
+                showNotice("PDF export failed. Please try again.", "warning");
+              }
             });
         }, 300);
       });
