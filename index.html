@@ -2510,8 +2510,9 @@ body{font-family:'Inter',Arial,Helvetica,sans-serif!important;background:linear-
 <button class="btn light lg" id="dl-new" onclick="goTo(1)">+ Create Another CV</button>
 <button class="btn ghost lg" id="dl-home" onclick="goTo(1)">Back to Home</button>
 </div>
-<p style="margin-top:12px;font-size:13px;color:var(--muted);text-align:center;line-height:1.5">
-  A print window will open. Choose <strong style="color:var(--text)">"Save as PDF"</strong> as the destination, then click Save.
+<p style="margin-top:12px;font-size:13px;color:var(--muted);text-align:center;line-height:1.6">
+  A print window will open. Choose <strong style="color:var(--text)">"Save as PDF"</strong> as the destination, then click Save.<br>
+  <span style="font-size:12px">For the best design quality, enable <strong style="color:var(--text)">"Background graphics"</strong> in the print dialog before saving.</span>
 </p>
 </div>
 </div>
@@ -4504,6 +4505,10 @@ function selectTpl(i){
   const el=document.getElementById("por-tpl-val");if(el)el.textContent=tname;
   const el2=document.getElementById("dl-tpl");if(el2)el2.textContent=tname;
 
+  // Persist immediately so openCleanPrintExport() and handlePaymentReturn()
+  // always find the correct template even after a full-page redirect.
+  try { localStorage.setItem("globalcv_selected_template", String(i)); } catch(e){}
+
   // GA4: track template selection
   trackEvent("select_template", {template_id: tid, template_name: tname});
 }
@@ -5219,43 +5224,100 @@ function openCleanPrintExport() {
   }
 
   // ── 6. Collect ALL <style> blocks from the current page ───────────────────
-  // This carries the full template CSS (sidebars, grids, colours, typography,
-  // every .cv-t1 ... .cv-t19 rule, .sheet-*, etc.) into the print window so
-  // the exact selected template design is preserved.
+  // Carries full template CSS (.cv-t1–.cv-t19, .sheet-*, sidebars, grids,
+  // colours, typography, spacing) into the print window so the exact selected
+  // template design is preserved.
+  // NOTE: the page CSS also contains @media print { body>*{display:none} }
+  //       which would hide everything — we OVERRIDE that below.
   var pageStyles = Array.from(document.querySelectorAll("style"))
     .map(function(s) { return s.innerHTML; })
     .join("\n");
 
-  // ── 7. Minimal print-only rules — page size and A4 dimensions ONLY ────────
-  // Do NOT globally override background-image, colors, or layout so template
-  // sidebars and design elements remain intact.
+  // ── 7. Print-specific CSS ─────────────────────────────────────────────────
+  // Applied AFTER pageStyles so it wins the cascade.
+  // Rules are carefully scoped: do NOT globally remove background-image,
+  // colours, or layout — template sidebars and design must be preserved.
   var printOnlyCSS = [
-    "@page { size: A4; margin: 0; }",
-    "html, body { margin: 0; padding: 0; background: #ffffff; }",
-    // Ensure the CV sheet fills the page without website shadows
+    // Preserve all background colours and images when printing
+    "* {",
+    "  box-sizing: border-box;",
+    "  -webkit-print-color-adjust: exact !important;",
+    "  print-color-adjust: exact !important;",
+    "  color-adjust: exact !important;",
+    "}",
+    // Clean page/body baseline
+    "html, body {",
+    "  margin: 0 !important;",
+    "  padding: 0 !important;",
+    "  background: #ffffff !important;",
+    "  font-family: Inter, Arial, sans-serif;",
+    "}",
+    // Outer A4 wrapper (added around resumeHTML below)
+    ".print-page {",
+    "  width: 210mm !important;",
+    "  margin: 0 auto !important;",
+    "}",
+    // First direct child of wrapper = the CV element itself
+    ".print-page > * {",
+    "  width: 210mm !important;",
+    "  margin: 0 !important;",
+    "  box-shadow: none !important;",
+    "}",
+    // Standard CV sheet containers
     ".cv-sheet, .cv-new, .a4-page {",
     "  width: 210mm !important;",
     "  min-height: 297mm !important;",
-    "  margin: 0 auto !important;",
+    "  margin: 0 !important;",
     "  box-shadow: none !important;",
+    "}",
+    "@page { size: A4; margin: 0; }",
+    // ── @media print overrides ──────────────────────────────────────────────
+    // The injected pageStyles contain:  body>*{display:none!important}
+    // which is the main site's print logic (to show only #printArea).
+    // We MUST override it here so the print window content stays visible.
+    "@media print {",
+    "  html, body {",
+    "    width: 210mm !important;",
+    "    margin: 0 !important;",
+    "    padding: 0 !important;",
+    "    background: #ffffff !important;",
+    "  }",
+    // Critical override — counteracts body>*{display:none} from page CSS
+    "  body > * { display: block !important; }",
+    "  .print-page {",
+    "    display: block !important;",
+    "    width: 210mm !important;",
+    "    margin: 0 !important;",
+    "    page-break-after: avoid;",
+    "  }",
+    "  .cv-sheet, .cv-new, .a4-page {",
+    "    display: block !important;",
+    "    width: 210mm !important;",
+    "    min-height: 297mm !important;",
+    "    margin: 0 !important;",
+    "    box-shadow: none !important;",
+    "    page-break-after: avoid;",
+    "  }",
     "}"
   ].join("\n");
 
   // ── 8. Write the self-contained print document ────────────────────────────
+  // resumeHTML is wrapped in .print-page so width/margin rules apply cleanly.
   printWindow.document.open();
   printWindow.document.write(
     "<!DOCTYPE html><html><head>"
     + "<meta charset=\"utf-8\">"
     + "<title>Professional CV — GlobalCV.pro</title>"
-    // Google Fonts for Inter (used by most templates)
+    // Inter font (used by all templates)
     + "<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap\" rel=\"stylesheet\">"
-    // Full page styles — contains all template CSS
+    // 1. Full page styles — all template CSS
     + "<style>" + pageStyles + "</style>"
-    // Print-only overrides (page size + A4 dimensions — nothing else)
+    // 2. Print-specific overrides — applied after, wins cascade
     + "<style>" + printOnlyCSS + "</style>"
     + "</head><body>"
-    + resumeHTML
-    // Auto-trigger print dialog after fonts have had time to load
+    // Wrap in .print-page for clean A4 sizing
+    + "<div class=\"print-page\">" + resumeHTML + "</div>"
+    // Trigger print dialog after fonts load (700 ms gives Google Fonts time)
     + "<script>window.onload=function(){setTimeout(function(){window.print();},700);}<\/script>"
     + "</body></html>"
   );
