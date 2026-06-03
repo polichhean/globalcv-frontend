@@ -4497,7 +4497,11 @@ function applyTemplateFilters(){
 
 /* ── SELECTION ── */
 let selectedTpl=0;
-function selectTpl(i){
+// persist=false is used during app initialisation (selectTpl(0, false)) so
+// the startup default does NOT overwrite the user's saved template choice.
+// All user-facing template clicks call selectTpl(i) with no second argument,
+// which defaults to persist=true and saves to localStorage immediately.
+function selectTpl(i, persist){
   selectedTpl=i;
   document.querySelectorAll(".tpl-card").forEach((c,j)=>c.classList.toggle("selected",j===i));
   const tname=TEMPLATES[i]?.n||'Template';
@@ -4505,9 +4509,15 @@ function selectTpl(i){
   const el=document.getElementById("por-tpl-val");if(el)el.textContent=tname;
   const el2=document.getElementById("dl-tpl");if(el2)el2.textContent=tname;
 
-  // Persist immediately so openCleanPrintExport() and handlePaymentReturn()
-  // always find the correct template even after a full-page redirect.
-  try { localStorage.setItem("globalcv_selected_template", String(i)); } catch(e){}
+  // Only persist to localStorage when the user explicitly picks a template.
+  // Skipped during startup (persist===false) so the init call doesn't clobber
+  // the template that was saved before the payment redirect.
+  if(persist !== false){
+    try {
+      localStorage.setItem("globalcv_selected_template", String(i));
+      console.log("Template selected and saved:", i, TEMPLATES[i] && TEMPLATES[i].n);
+    } catch(e){}
+  }
 
   // GA4: track template selection
   trackEvent("select_template", {template_id: tid, template_name: tname});
@@ -5302,23 +5312,20 @@ function openCleanPrintExport() {
   ].join("\n");
 
   // ── 8. Write the self-contained print document ────────────────────────────
-  // resumeHTML is wrapped in .print-page so width/margin rules apply cleanly.
+  // Template literal avoids the browser quirk where string-concatenated
+  // document.write() can leak <script> tag content as visible body text.
+  // The <\/script> escape prevents the JS parser ending this template literal.
   printWindow.document.open();
   printWindow.document.write(
     "<!DOCTYPE html><html><head>"
     + "<meta charset=\"utf-8\">"
     + "<title>Professional CV — GlobalCV.pro</title>"
-    // Inter font (used by all templates)
     + "<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap\" rel=\"stylesheet\">"
-    // 1. Full page styles — all template CSS
     + "<style>" + pageStyles + "</style>"
-    // 2. Print-specific overrides — applied after, wins cascade
     + "<style>" + printOnlyCSS + "</style>"
     + "</head><body>"
-    // Wrap in .print-page for clean A4 sizing
     + "<div class=\"print-page\">" + resumeHTML + "</div>"
-    // Trigger print dialog after fonts load (700 ms gives Google Fonts time)
-    + "<script>window.onload=function(){setTimeout(function(){window.print();},700);}<\/script>"
+    + "<script>window.addEventListener('load',function(){setTimeout(function(){window.focus();window.print();},700);});<\/script>"
     + "</body></html>"
   );
   printWindow.document.close();
@@ -5328,7 +5335,7 @@ function openCleanPrintExport() {
 
 /* ── INIT ── */
 renderTemplates();
-selectTpl(0);
+selectTpl(0, false); // false = do NOT overwrite globalcv_selected_template during startup
 updateStickyNav();
 // handlePaymentReturn() is now called inside DOMContentLoaded (after loadFromStorage)
 // so form fields are already populated before goTo(4) reads them.
